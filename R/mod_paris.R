@@ -61,13 +61,14 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       m_all <- matchs()
       panels <- lapply(sort(unique(av$journee)), function(j) {
         mj <- av[av$journee == j, , drop = FALSE]
+        date_j <- mj |> count(date_match = substr(date_match, 1, 10), name = "nb") |> 
+          slice_max(nb, n = 1) |> pull(date_match)
         cartes <- lapply(seq_len(nrow(mj)), function(i) {
           carte_match(mj[i, ], m_all)
         })
         accordion_panel(
           title = sprintf("%s %d — %s", tr("Journée"), j,
-                          format(as.Date(substr(mj$date_match[1], 1, 10)),
-                                 "%d/%m/%Y")),
+                          format(as.Date(date_j),"%d/%m/%Y")),
           value = paste0("j", j),
           layout_column_wrap(width = 1 / 2, fill = FALSE, !!!cartes)
         )
@@ -102,8 +103,11 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
         card_header(
           class = "d-flex justify-content-between align-items-center",
           span(strong(m$home), " vs ", strong(m$away)),
-          span(class = "badge bg-secondary",
-               substr(m$date_match, 12, 16))
+          span(class = "badge bg-secondary",m$date_match)
+          #      substr(m$date_match, 12, 16),
+          #      substr(m$date_match, 1, 10)),
+          # span(class = "badge bg-secondary",
+          #      substr(m$date_match, 12, 16))
         ),
         card_body(
           div(class = "cotes-resume mb-2",
@@ -112,8 +116,8 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
               span(class = "badge bg-primary me-1",
                    sprintf("%s %.2f", m$away, cv["away"])),
               span(class = "badge bg-info",
-                   sprintf("%s 1-2: %.2f | 3-5: %.2f | 6+: %.2f",
-                           tr("Écart"), ce["1-2"], ce["3-5"], ce["6+"]))
+                   sprintf("%s 1-2: %.2f | 3-5: %.2f | 6: %.2f",
+                           tr("Écart"), ce["1-2"], ce["3-5"], ce["6"]))
           ),
           radioButtons(ns(paste0("type_", mid)), tr("Type de pari"),
                        choiceNames = c(tr("Vainqueur"), tr("Écart de points")),

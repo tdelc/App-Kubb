@@ -42,50 +42,55 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       choix_users <- setNames(users$user_id, users$pseudo)
 
       tagList(
-        layout_column_wrap(
-          width = 1 / 2,
-          fill = FALSE,
-
-          card(
-            card_header(tagList(bsicons::bs_icon("pencil-square"),
-                                tr("Saisir un résultat"))),
-            card_body(
-              selectInput(ns("score_match"), tr("Match"), choices = choix_matchs),
-              uiOutput(ns("score_inputs")),
-              actionButton(ns("btn_score"), tr("Valider le résultat"),
-                           class = "btn-danger"),
-              p(class = "text-muted small mt-2",
-                tr("La validation règle définitivement tous les paris du match."))
-            )
-          ),
-
-          card(
-            card_header(tagList(bsicons::bs_icon("coin"),
-                                tr("Ajuster les StatCoins"))),
-            card_body(
-              selectInput(ns("adj_user"), tr("Parieur·euse"), choices = choix_users),
-              numericInput(ns("adj_montant"), tr("Montant (négatif pour retirer)"),
-                           value = 100, step = 10),
-              textInput(ns("adj_motif"), tr("Motif"),
-                        placeholder = tr("Bonus de bonne humeur")),
-              actionButton(ns("btn_adj"), tr("Appliquer"), class = "btn-warning")
-            )
-          ),
-
-          card(
-            card_header(tagList(bsicons::bs_icon("calendar-event"),
-                                tr("Reprogrammer un match"))),
-            card_body(
-              selectInput(ns("date_match_sel"), tr("Match"), choices = choix_matchs),
-              dateInput(ns("nouvelle_date"), tr("Nouvelle date"), value = Sys.Date()),
-              textInput(ns("nouvelle_heure"), tr("Heure (HH:MM)"), value = "14:00"),
-              actionButton(ns("btn_date"), tr("Reprogrammer"),
-                           class = "btn-secondary")
-            )
-          )
-        ),
-
+        
         navset_card_tab(
+          
+          nav_panel(tr("Actions"),
+          
+            layout_column_wrap(
+              width = 1 / 2,
+              fill = FALSE,
+    
+              card(
+                card_header(tagList(bsicons::bs_icon("pencil-square"),
+                                    tr("Saisir un résultat"))),
+                card_body(
+                  selectInput(ns("score_match"), tr("Match"), choices = choix_matchs),
+                  uiOutput(ns("score_inputs")),
+                  tableOutput(ns("tbl_score_bets")),
+                  actionButton(ns("btn_score"), tr("Valider le résultat"),
+                               class = "btn-danger"),
+                  p(class = "text-muted small mt-2",
+                    tr("La validation règle définitivement tous les paris du match."))
+                )
+              ),
+    
+              card(
+                card_header(tagList(bsicons::bs_icon("coin"),
+                                    tr("Ajuster les StatCoins"))),
+                card_body(
+                  selectInput(ns("adj_user"), tr("Parieur·euse"), choices = choix_users),
+                  numericInput(ns("adj_montant"), tr("Montant (négatif pour retirer)"),
+                               value = 100, step = 10),
+                  textInput(ns("adj_motif"), tr("Motif"),
+                            placeholder = tr("Bonus de bonne humeur")),
+                  actionButton(ns("btn_adj"), tr("Appliquer"), class = "btn-warning")
+                )
+              ),
+    
+              card(
+                card_header(tagList(bsicons::bs_icon("calendar-event"),
+                                    tr("Reprogrammer un match"))),
+                card_body(
+                  selectInput(ns("date_match_sel"), tr("Match"), choices = choix_matchs),
+                  dateInput(ns("nouvelle_date"), tr("Nouvelle date"), value = Sys.Date()),
+                  textInput(ns("nouvelle_heure"), tr("Heure (HH:MM)"), value = "14:00"),
+                  actionButton(ns("btn_date"), tr("Reprogrammer"),
+                               class = "btn-secondary")
+                )
+              )
+            )
+          ),
           nav_panel(tr("Parieur·euses"), DT::DTOutput(ns("tbl_users"))),
           nav_panel(tr("Tous les paris"), DT::DTOutput(ns("tbl_bets")))
         )
@@ -106,6 +111,29 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                      value = 0, min = 0, step = 1)
       )
     })
+    
+    output$tbl_score_bets <- renderTable({
+    
+      b <- get_bets(con)
+      t <- get_teams(con)
+      if (nrow(b) == 0) {
+        return(DT::datatable(
+          data.frame(x = tr("Aucun pari pour le moment.")),
+          rownames = FALSE, colnames = "", options = list(dom = "t")))
+      }
+      b <- b |>
+        dplyr::filter(match_id == as.integer(input$score_match)) |>
+        dplyr::mutate(team_id = as.numeric(selection)) |>
+        dplyr::left_join(t,by = "team_id") |>
+        dplyr::group_by(type,nom,selection) |>
+        dplyr::summarise(n = n(),
+                         sum_bets = sum(mise),
+                         mean_bets = mean(mise),
+                         .groups = "drop")
+      
+      b
+    })
+    
 
     # ---------------- Validation d'un score (avec confirmation) ----------------
     observeEvent(input$btn_score, {
