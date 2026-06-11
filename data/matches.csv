@@ -1,0 +1,29 @@
+journee,date_match,home,away
+1,2026-06-18 12:30,STS 16th Street Gang,Royal King Kubb
+1,2026-06-18 12:30,KUBB Collectors,The Lionkubbs
+1,2026-06-18 13:00,GitKubb,Kubberdons
+1,2026-06-18 13:00,Les Datalords,CDC
+2,2026-07-02 12:30,STS 16th Street Gang,KUBB Collectors
+2,2026-07-02 12:30,Royal King Kubb,GitKubb
+2,2026-07-02 13:00,The Lionkubbs,Les Datalords
+2,2026-07-02 13:00,Kubberdons,CDC
+3,2026-07-14 12:30,STS 16th Street Gang,The Lionkubbs
+3,2026-07-14 12:30,Royal King Kubb,Kubberdons
+3,2026-07-14 13:00,KUBB Collectors,Les Datalords
+3,2026-07-14 13:00,GitKubb,CDC
+4,2026-07-30 12:30,STS 16th Street Gang,GitKubb
+4,2026-07-30 12:30,Royal King Kubb,Les Datalords
+4,2026-07-30 13:00,KUBB Collectors,Kubberdons
+4,2026-07-30 13:00,The Lionkubbs,CDC
+5,2026-08-11 12:30,STS 16th Street Gang,Kubberdons
+5,2026-08-11 12:30,Royal King Kubb,The Lionkubbs
+5,2026-08-11 13:00,KUBB Collectors,CDC
+5,2026-08-11 13:00,GitKubb,Les Datalords
+6,2026-08-27 12:30,STS 16th Street Gang,Les Datalords
+6,2026-08-27 12:30,Royal King Kubb,CDC
+6,2026-08-27 13:00,KUBB Collectors,GitKubb
+6,2026-08-27 13:00,The Lionkubbs,Kubberdons
+7,2026-09-08 12:30,STS 16th Street Gang,CDC
+7,2026-09-08 12:30,Royal King Kubb,KUBB Collectors
+7,2026-09-08 13:00,The Lionkubbs,GitKubb
+7,2026-09-08 13:00,Kubberdons,Les Datalords

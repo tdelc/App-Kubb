@@ -43,7 +43,7 @@ vignettes/*.pdf
 docs/
 
 # Data
-data/
+data/*.sqlite
 
 # translation temp files
 po/*~
