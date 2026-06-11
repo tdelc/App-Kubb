@@ -155,7 +155,7 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
       uid <- dbx_get(con, "
         INSERT INTO users (nom, pseudo, language, password, is_admin)
         VALUES (?, ?, ?, ?, ?) RETURNING user_id",
-                     params = list(nom, pseudo, pwd,
+                     params = list(nom, pseudo, language, pwd,
                                    as.integer(tolower(pseudo) %in% tolower(ADMIN_PSEUDOS))))$user_id
         # params = list(nom, pseudo, language, pwd,
         #               as.integer(tolower(pseudo) %in% tolower(ADMIN_PSEUDOS))))
