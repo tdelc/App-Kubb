@@ -25,6 +25,7 @@ shiny::onStop(function() DBI::dbDisconnect(con))
 # ---------------- Internationalisation ----------------
 i18n <- Translator$new(translation_json_path = "translations/translation.json")
 i18n$set_translation_language("fr")
+i18n$use_js()
 
 # ---------------- Thème : chaleureux, été ----------------
 theme_kubb <- bs_theme(
@@ -51,6 +52,11 @@ ui <- page_navbar(
   ),
 
   nav_panel(
+    title = i18n$t("Compte"), value = "compte",
+    icon = bsicons::bs_icon("person"),
+    mod_auth_ui("auth", i18n)
+  ),
+  nav_panel(
     title = i18n$t("Suivi"), value = "suivi",
     icon = bsicons::bs_icon("bar-chart-line"),
     mod_suivi_ui("suivi", i18n)
@@ -59,11 +65,6 @@ ui <- page_navbar(
     title = i18n$t("Paris"), value = "paris",
     icon = bsicons::bs_icon("dice-5"),
     mod_paris_ui("paris", i18n)
-  ),
-  nav_panel(
-    title = i18n$t("Compte"), value = "compte",
-    icon = bsicons::bs_icon("person"),
-    mod_auth_ui("auth", i18n)
   ),
   nav_panel(
     title = i18n$t("Admin"), value = "admin",
@@ -125,6 +126,10 @@ server <- function(input, output, session) {
   mod_paris_server("paris", con, user, db_ver, touch, i18n_s, lang)
   mod_suivi_server("suivi", con, db_ver, i18n_s, lang)
   mod_admin_server("admin", con, user, db_ver, touch, i18n_s, lang)
+  
+  observeEvent(lang(),{
+    updateSelectInput(session,"selected_lang",selected = lang())
+  })
 }
 
 shinyApp(ui, server)

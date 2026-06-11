@@ -43,6 +43,7 @@ db_init <- function(con, date_debut = next_saturday()) {
       user_id    INTEGER PRIMARY KEY AUTOINCREMENT,
       nom        TEXT NOT NULL,
       pseudo     TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      language   TEXT NOT NULL,
       password   TEXT NOT NULL,
       statcoins  REAL NOT NULL DEFAULT 0,   -- crédité via transactions
       is_admin   INTEGER NOT NULL DEFAULT 0,

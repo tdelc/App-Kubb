@@ -1,464 +1,579 @@
 {
   "languages": [
     "fr",
-    "en"
+    "en",
+    "nl"
   ],
   "translation": [
     {
       "fr": "Accès réservé à l'administration.",
-      "en": "Admin access only."
+      "en": "Admin access only.",
+      "nl": "Alleen toegang voor beheerders."
     },
     {
       "fr": "Admin",
-      "en": "Admin"
+      "en": "Admin",
+      "nl": "Beheer"
     },
     {
       "fr": "Ajustement appliqué.",
-      "en": "Adjustment applied."
+      "en": "Adjustment applied.",
+      "nl": "Aanpassing toegepast."
     },
     {
       "fr": "Ajuster les StatCoins",
-      "en": "Adjust StatCoins"
+      "en": "Adjust StatCoins",
+      "nl": "StatCoins aanpassen"
     },
     {
       "fr": "Annuler",
-      "en": "Cancel"
+      "en": "Cancel",
+      "nl": "Annuleren"
     },
     {
       "fr": "Appliquer",
-      "en": "Apply"
+      "en": "Apply",
+      "nl": "Toepassen"
     },
     {
       "fr": "Aucun match joué pour le moment.",
-      "en": "No match played yet."
+      "en": "No match played yet.",
+      "nl": "Nog geen wedstrijd gespeeld."
     },
     {
       "fr": "Aucun match à venir : le tournoi est terminé !",
-      "en": "No upcoming match: the tournament is over!"
+      "en": "No upcoming match: the tournament is over!",
+      "nl": "Geen aankomende wedstrijd: het toernooi is afgelopen!"
     },
     {
       "fr": "Aucun pari pour le moment.",
-      "en": "No bet yet."
+      "en": "No bet yet.",
+      "nl": "Nog geen weddenschap."
     },
     {
       "fr": "Bienvenue",
-      "en": "Welcome"
+      "en": "Welcome",
+      "nl": "Welkom"
     },
     {
       "fr": "Bonus de bonne humeur",
-      "en": "Good vibes bonus"
+      "en": "Good vibes bonus",
+      "nl": "Goedgehumeurdheidsbonus"
     },
     {
       "fr": "Ce pseudo est déjà pris.",
-      "en": "This username is already taken."
+      "en": "This username is already taken.",
+      "nl": "Deze gebruikersnaam is al in gebruik."
     },
     {
       "fr": "Classement des parieur·euses",
-      "en": "Bettors ranking"
+      "en": "Bettors ranking",
+      "nl": "Klassement van de wedders"
     },
     {
       "fr": "Classement des équipes",
-      "en": "Teams ranking"
+      "en": "Teams ranking",
+      "nl": "Klassement van de teams"
     },
     {
       "fr": "Compte",
-      "en": "Account"
+      "en": "Account",
+      "nl": "Account"
     },
     {
       "fr": "Compte créé, bienvenue",
-      "en": "Account created, welcome"
+      "en": "Account created, welcome",
+      "nl": "Account aangemaakt, welkom"
     },
     {
       "fr": "Confirmer",
-      "en": "Confirm"
+      "en": "Confirm",
+      "nl": "Bevestigen"
     },
     {
       "fr": "Confirmer le résultat",
-      "en": "Confirm the result"
+      "en": "Confirm the result",
+      "nl": "Het resultaat bevestigen"
     },
     {
       "fr": "Connectez-vous dans l'onglet Compte pour pouvoir parier.",
-      "en": "Log in from the Account tab to place bets."
+      "en": "Log in from the Account tab to place bets.",
+      "nl": "Log in via het tabblad Account om te kunnen wedden."
     },
     {
       "fr": "Connectez-vous pour parier.",
-      "en": "Log in to place a bet."
+      "en": "Log in to place a bet.",
+      "nl": "Log in om te wedden."
     },
     {
       "fr": "Connectez-vous pour voir vos paris.",
-      "en": "Log in to see your bets."
+      "en": "Log in to see your bets.",
+      "nl": "Log in om je weddenschappen te bekijken."
     },
     {
       "fr": "Connecté·e en tant que",
-      "en": "Logged in as"
+      "en": "Logged in as",
+      "nl": "Ingelogd als"
     },
     {
       "fr": "Connexion",
-      "en": "Log in"
+      "en": "Log in",
+      "nl": "Inloggen"
     },
     {
       "fr": "Cote",
-      "en": "Odds"
+      "en": "Odds",
+      "nl": "Quotering"
     },
     {
       "fr": "Créer mon compte",
-      "en": "Create my account"
+      "en": "Create my account",
+      "nl": "Mijn account aanmaken"
     },
     {
       "fr": "Date",
-      "en": "Date"
+      "en": "Date",
+      "nl": "Datum"
     },
     {
       "fr": "Différence",
-      "en": "Difference"
+      "en": "Difference",
+      "nl": "Verschil"
     },
     {
       "fr": "Défaites",
-      "en": "Losses"
+      "en": "Losses",
+      "nl": "Nederlagen"
     },
     {
       "fr": "En cours",
-      "en": "Open"
+      "en": "Open",
+      "nl": "Lopend"
     },
     {
       "fr": "Gagné",
-      "en": "Won"
+      "en": "Won",
+      "nl": "Gewonnen"
     },
     {
       "fr": "Gain",
-      "en": "Payout"
+      "en": "Payout",
+      "nl": "Uitbetaling"
     },
     {
       "fr": "Gains totaux",
-      "en": "Total winnings"
+      "en": "Total winnings",
+      "nl": "Totale winst"
     },
     {
       "fr": "Heure (HH:MM)",
-      "en": "Time (HH:MM)"
+      "en": "Time (HH:MM)",
+      "nl": "Uur (UU:MM)"
     },
     {
       "fr": "Heure invalide (format HH:MM).",
-      "en": "Invalid time (HH:MM format)."
+      "en": "Invalid time (HH:MM format).",
+      "nl": "Ongeldig uur (formaat UU:MM)."
     },
     {
       "fr": "Inscription",
-      "en": "Sign up"
+      "en": "Sign up",
+      "nl": "Registreren"
     },
     {
       "fr": "Inscrit·e le",
-      "en": "Registered on"
+      "en": "Registered on",
+      "nl": "Geregistreerd op"
     },
     {
       "fr": "Journée",
-      "en": "Round"
+      "en": "Round",
+      "nl": "Speelronde"
     },
     {
       "fr": "Joués",
-      "en": "Played"
+      "en": "Played",
+      "nl": "Gespeeld"
     },
     {
       "fr": "Kubbs contre",
-      "en": "Kubbs against"
+      "en": "Kubbs against",
+      "nl": "Kubbs tegen"
     },
     {
       "fr": "Kubbs pour",
-      "en": "Kubbs for"
+      "en": "Kubbs for",
+      "nl": "Kubbs voor"
     },
     {
       "fr": "L'inscription crédite votre compte de 1000 StatCoins.",
-      "en": "Signing up credits your account with 1000 StatCoins."
+      "en": "Signing up credits your account with 1000 StatCoins.",
+      "nl": "Bij registratie wordt je account met 1000 StatCoins gecrediteerd."
     },
     {
       "fr": "La mise doit être un entier entre 1 et 100.",
-      "en": "The stake must be an integer between 1 and 100."
+      "en": "The stake must be an integer between 1 and 100.",
+      "nl": "De inzet moet een geheel getal tussen 1 en 100 zijn."
     },
     {
       "fr": "La validation règle définitivement tous les paris du match.",
-      "en": "Validation permanently settles all bets on this match."
+      "en": "Validation permanently settles all bets on this match.",
+      "nl": "De validatie vereffent definitief alle weddenschappen van de wedstrijd."
     },
     {
       "fr": "Le mot de passe doit faire au moins 4 caractères.",
-      "en": "The password must be at least 4 characters long."
+      "en": "The password must be at least 4 characters long.",
+      "nl": "Het wachtwoord moet minstens 4 tekens bevatten."
     },
     {
       "fr": "Les paris sont clôturés pour ce match.",
-      "en": "Betting is closed for this match."
+      "en": "Betting is closed for this match.",
+      "nl": "De weddenschappen zijn gesloten voor deze wedstrijd."
     },
     {
       "fr": "Match",
-      "en": "Match"
+      "en": "Match",
+      "nl": "Wedstrijd"
     },
     {
       "fr": "Match reprogrammé.",
-      "en": "Match rescheduled."
+      "en": "Match rescheduled.",
+      "nl": "Wedstrijd opnieuw ingepland."
     },
     {
       "fr": "Matchs joués",
-      "en": "Matches played"
+      "en": "Matches played",
+      "nl": "Gespeelde wedstrijden"
     },
     {
       "fr": "Meilleur·e parieur·euse",
-      "en": "Top bettor"
+      "en": "Top bettor",
+      "nl": "Beste wedder"
     },
     {
       "fr": "Mes mouvements de StatCoins",
-      "en": "My StatCoins history"
+      "en": "My StatCoins history",
+      "nl": "Mijn StatCoins-bewegingen"
     },
     {
       "fr": "Mes paris",
-      "en": "My bets"
+      "en": "My bets",
+      "nl": "Mijn weddenschappen"
     },
     {
       "fr": "Mise",
-      "en": "Stake"
+      "en": "Stake",
+      "nl": "Inzet"
     },
     {
       "fr": "Mise (StatCoins)",
-      "en": "Stake (StatCoins)"
+      "en": "Stake (StatCoins)",
+      "nl": "Inzet (StatCoins)"
     },
     {
       "fr": "Misez entre 1 et 100 StatCoins par pari.",
-      "en": "Bet between 1 and 100 StatCoins per wager."
+      "en": "Bet between 1 and 100 StatCoins per wager.",
+      "nl": "Zet tussen 1 en 100 StatCoins per weddenschap in."
     },
     {
       "fr": "Montant",
-      "en": "Amount"
+      "en": "Amount",
+      "nl": "Bedrag"
     },
     {
       "fr": "Montant (négatif pour retirer)",
-      "en": "Amount (negative to withdraw)"
+      "en": "Amount (negative to withdraw)",
+      "nl": "Bedrag (negatief om af te trekken)"
     },
     {
       "fr": "Montant invalide.",
-      "en": "Invalid amount."
+      "en": "Invalid amount.",
+      "nl": "Ongeldig bedrag."
     },
     {
       "fr": "Mot de passe",
-      "en": "Password"
+      "en": "Password",
+      "nl": "Wachtwoord"
     },
     {
       "fr": "Motif",
-      "en": "Reason"
+      "en": "Reason",
+      "nl": "Reden"
     },
     {
       "fr": "Nom",
-      "en": "Name"
+      "en": "Name",
+      "nl": "Naam"
     },
     {
       "fr": "Nom et pseudo requis.",
-      "en": "Name and username required."
+      "en": "Name and username required.",
+      "nl": "Naam en gebruikersnaam vereist."
     },
     {
       "fr": "Nouvelle date",
-      "en": "New date"
+      "en": "New date",
+      "nl": "Nieuwe datum"
     },
     {
       "fr": "Pari enregistré :",
-      "en": "Bet placed:"
+      "en": "Bet placed:",
+      "nl": "Weddenschap geregistreerd:"
     },
     {
       "fr": "Parier",
-      "en": "Place bet"
+      "en": "Place bet",
+      "nl": "Wedden"
     },
     {
       "fr": "Parieur·euse",
-      "en": "Bettor"
+      "en": "Bettor",
+      "nl": "Wedder"
     },
     {
       "fr": "Parieur·euses",
-      "en": "Bettors"
+      "en": "Bettors",
+      "nl": "Wedders"
     },
     {
       "fr": "Paris",
-      "en": "Bets"
+      "en": "Bets",
+      "nl": "Weddenschappen"
     },
     {
       "fr": "Paris gagnés",
-      "en": "Bets won"
+      "en": "Bets won",
+      "nl": "Gewonnen weddenschappen"
     },
     {
       "fr": "Paris placés",
-      "en": "Bets placed"
+      "en": "Bets placed",
+      "nl": "Geplaatste weddenschappen"
     },
     {
       "fr": "Pas de match nul au Kubb : départagez-les !",
-      "en": "No draws in Kubb: play it off!"
+      "en": "No draws in Kubb: play it off!",
+      "nl": "Geen gelijkspel bij Kubb: speel het uit!"
     },
     {
       "fr": "Perdu",
-      "en": "Lost"
+      "en": "Lost",
+      "nl": "Verloren"
     },
     {
       "fr": "Personne pour l'instant",
-      "en": "Nobody yet"
+      "en": "Nobody yet",
+      "nl": "Nog niemand"
     },
     {
       "fr": "Pseudo",
-      "en": "Username"
+      "en": "Username",
+      "nl": "Gebruikersnaam"
     },
     {
       "fr": "Pseudo et mot de passe requis.",
-      "en": "Username and password required."
+      "en": "Username and password required.",
+      "nl": "Gebruikersnaam en wachtwoord vereist."
     },
     {
       "fr": "Pseudo ou mot de passe incorrect.",
-      "en": "Wrong username or password."
+      "en": "Wrong username or password.",
+      "nl": "Onjuiste gebruikersnaam of wachtwoord."
     },
     {
       "fr": "Quel écart de points ?",
-      "en": "Which point margin?"
+      "en": "Which point margin?",
+      "nl": "Welke puntenmarge?"
     },
     {
       "fr": "Quelle équipe gagne ?",
-      "en": "Which team wins?"
+      "en": "Which team wins?",
+      "nl": "Welk team wint?"
     },
     {
       "fr": "Reprogrammer",
-      "en": "Reschedule"
+      "en": "Reschedule",
+      "nl": "Opnieuw inplannen"
     },
     {
       "fr": "Reprogrammer un match",
-      "en": "Reschedule a match"
+      "en": "Reschedule a match",
+      "nl": "Een wedstrijd opnieuw inplannen"
     },
     {
       "fr": "Réglé",
-      "en": "Settled"
+      "en": "Settled",
+      "nl": "Vereffend"
     },
     {
       "fr": "Résultat enregistré :",
-      "en": "Result saved:"
+      "en": "Result saved:",
+      "nl": "Resultaat opgeslagen:"
     },
     {
       "fr": "Résultats",
-      "en": "Results"
+      "en": "Results",
+      "nl": "Resultaten"
     },
     {
       "fr": "Saisir un résultat",
-      "en": "Enter a result"
+      "en": "Enter a result",
+      "nl": "Een resultaat invoeren"
     },
     {
       "fr": "Score",
-      "en": "Score"
+      "en": "Score",
+      "nl": "Score"
     },
     {
       "fr": "Scores invalides.",
-      "en": "Invalid scores."
+      "en": "Invalid scores.",
+      "nl": "Ongeldige scores."
     },
     {
       "fr": "Se connecter",
-      "en": "Log in"
+      "en": "Log in",
+      "nl": "Inloggen"
     },
     {
       "fr": "Se déconnecter",
-      "en": "Log out"
+      "en": "Log out",
+      "nl": "Uitloggen"
     },
     {
       "fr": "Solde",
-      "en": "Balance"
+      "en": "Balance",
+      "nl": "Saldo"
     },
     {
       "fr": "Solde insuffisant pour cette mise.",
-      "en": "Insufficient balance for this stake."
+      "en": "Insufficient balance for this stake.",
+      "nl": "Onvoldoende saldo voor deze inzet."
     },
     {
       "fr": "Statut",
-      "en": "Status"
+      "en": "Status",
+      "nl": "Status"
     },
     {
       "fr": "Suivi",
-      "en": "Dashboard"
+      "en": "Dashboard",
+      "nl": "Dashboard"
     },
     {
       "fr": "Sélection",
-      "en": "Selection"
+      "en": "Selection",
+      "nl": "Selectie"
     },
     {
       "fr": "Sélection invalide.",
-      "en": "Invalid selection."
+      "en": "Invalid selection.",
+      "nl": "Ongeldige selectie."
     },
     {
       "fr": "Tournoi de Kubb",
-      "en": "Kubb Tournament"
+      "en": "Kubb Tournament",
+      "nl": "Kubb-toernooi"
     },
     {
       "fr": "Tournoi à venir",
-      "en": "Tournament ahead"
+      "en": "Tournament ahead",
+      "nl": "Toernooi op komst"
     },
     {
       "fr": "Tous les paris",
-      "en": "All bets"
+      "en": "All bets",
+      "nl": "Alle weddenschappen"
     },
     {
       "fr": "Type",
-      "en": "Type"
+      "en": "Type",
+      "nl": "Type"
     },
     {
       "fr": "Type de pari",
-      "en": "Bet type"
+      "en": "Bet type",
+      "nl": "Type weddenschap"
     },
     {
       "fr": "Vainqueur",
-      "en": "Winner"
+      "en": "Winner",
+      "nl": "Winnaar"
     },
     {
       "fr": "Valider le résultat",
-      "en": "Validate result"
+      "en": "Validate result",
+      "nl": "Resultaat valideren"
     },
     {
       "fr": "Victoires",
-      "en": "Wins"
+      "en": "Wins",
+      "nl": "Overwinningen"
     },
     {
       "fr": "Votre solde",
-      "en": "Your balance"
+      "en": "Your balance",
+      "nl": "Jouw saldo"
     },
     {
       "fr": "bonne chance !",
-      "en": "good luck!"
+      "en": "good luck!",
+      "nl": "veel succes!"
     },
     {
       "fr": "gagnants",
-      "en": "winning"
+      "en": "winning",
+      "nl": "winnende"
     },
     {
       "fr": "paris réglés",
-      "en": "bets settled"
+      "en": "bets settled",
+      "nl": "vereffende weddenschappen"
     },
     {
       "fr": "redistribués",
-      "en": "paid out"
+      "en": "paid out",
+      "nl": "uitbetaald"
     },
     {
       "fr": "À bientôt !",
-      "en": "See you soon!"
+      "en": "See you soon!",
+      "nl": "Tot snel!"
     },
     {
       "fr": "Écart",
-      "en": "Margin"
+      "en": "Margin",
+      "nl": "Marge"
     },
     {
       "fr": "Écart de points",
-      "en": "Point margin"
+      "en": "Point margin",
+      "nl": "Puntenmarge"
     },
     {
       "fr": "Équipe",
-      "en": "Team"
+      "en": "Team",
+      "nl": "Team"
     },
     {
       "fr": "Équipe 1",
-      "en": "Team 1"
+      "en": "Team 1",
+      "nl": "Team 1"
     },
     {
       "fr": "Équipe 2",
-      "en": "Team 2"
+      "en": "Team 2",
+      "nl": "Team 2"
     },
     {
       "fr": "Équipe en tête",
-      "en": "Leading team"
+      "en": "Leading team",
+      "nl": "Leidend team"
     },
     {
       "fr": "Évolution des StatCoins",
-      "en": "StatCoins over time"
+      "en": "StatCoins over time",
+      "nl": "Evolutie van de StatCoins"
     }
   ]
 }

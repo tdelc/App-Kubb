@@ -36,6 +36,7 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
               textInput(ns("reg_nom"), tr("Nom")),
               textInput(ns("reg_pseudo"), tr("Pseudo")),
               passwordInput(ns("reg_pwd"), tr("Mot de passe")),
+              selectInput(ns("reg_lan"), tr("Langue"),choices = c("fr","nl","en")),
               actionButton(ns("btn_register"), tr("Créer mon compte"),
                            class = "btn-success"),
               p(class = "text-muted small mt-2",
@@ -88,6 +89,9 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
       u <- get_user_by_pseudo(con, pseudo)
       if (nrow(u) == 1 && identical(u$password, input$login_pwd)) {
         user_id(u$user_id)
+        shiny.i18n::update_lang(u$language)
+        i18n_s$set_translation_language(u$language)
+        lang(u$language)
         showNotification(
           sprintf("%s %s !", tr("Bienvenue"), u$pseudo), type = "message")
       } else {
@@ -99,6 +103,7 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
     observeEvent(input$btn_register, {
       nom    <- trimws(input$reg_nom %||% "")
       pseudo <- trimws(input$reg_pseudo %||% "")
+      language <- trimws(input$reg_lan %||% "")
       pwd    <- input$reg_pwd %||% ""
 
       if (nom == "" || pseudo == "") {
@@ -116,14 +121,17 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
       }
 
       DBI::dbExecute(con, "
-        INSERT INTO users (nom, pseudo, password, is_admin)
-        VALUES (?, ?, ?, ?)",
-        params = list(nom, pseudo, pwd,
+        INSERT INTO users (nom, pseudo, language, password, is_admin)
+        VALUES (?, ?, ?, ?, ?)",
+        params = list(nom, pseudo, language, pwd,
                       as.integer(tolower(pseudo) %in% tolower(ADMIN_PSEUDOS))))
       uid <- DBI::dbGetQuery(con, "SELECT last_insert_rowid() AS id")$id
       add_transaction(con, uid, CREDIT_INITIAL, "Cr\u00e9dit initial")
       touch()
       user_id(uid)
+      shiny.i18n::update_lang(language)
+      i18n_s$set_translation_language(language)
+      lang(language)
       showNotification(
         sprintf("%s %s !", tr("Compte créé, bienvenue"), pseudo), type = "message")
     })
