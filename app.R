@@ -7,7 +7,9 @@
 
 library(shiny)
 library(bslib)
-library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(lubridate)
 library(DT)
 library(plotly)
 library(shiny.i18n)
