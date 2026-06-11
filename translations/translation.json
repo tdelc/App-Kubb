@@ -1,0 +1,464 @@
+{
+  "languages": [
+    "fr",
+    "en"
+  ],
+  "translation": [
+    {
+      "fr": "Accès réservé à l'administration.",
+      "en": "Admin access only."
+    },
+    {
+      "fr": "Admin",
+      "en": "Admin"
+    },
+    {
+      "fr": "Ajustement appliqué.",
+      "en": "Adjustment applied."
+    },
+    {
+      "fr": "Ajuster les StatCoins",
+      "en": "Adjust StatCoins"
+    },
+    {
+      "fr": "Annuler",
+      "en": "Cancel"
+    },
+    {
+      "fr": "Appliquer",
+      "en": "Apply"
+    },
+    {
+      "fr": "Aucun match joué pour le moment.",
+      "en": "No match played yet."
+    },
+    {
+      "fr": "Aucun match à venir : le tournoi est terminé !",
+      "en": "No upcoming match: the tournament is over!"
+    },
+    {
+      "fr": "Aucun pari pour le moment.",
+      "en": "No bet yet."
+    },
+    {
+      "fr": "Bienvenue",
+      "en": "Welcome"
+    },
+    {
+      "fr": "Bonus de bonne humeur",
+      "en": "Good vibes bonus"
+    },
+    {
+      "fr": "Ce pseudo est déjà pris.",
+      "en": "This username is already taken."
+    },
+    {
+      "fr": "Classement des parieur·euses",
+      "en": "Bettors ranking"
+    },
+    {
+      "fr": "Classement des équipes",
+      "en": "Teams ranking"
+    },
+    {
+      "fr": "Compte",
+      "en": "Account"
+    },
+    {
+      "fr": "Compte créé, bienvenue",
+      "en": "Account created, welcome"
+    },
+    {
+      "fr": "Confirmer",
+      "en": "Confirm"
+    },
+    {
+      "fr": "Confirmer le résultat",
+      "en": "Confirm the result"
+    },
+    {
+      "fr": "Connectez-vous dans l'onglet Compte pour pouvoir parier.",
+      "en": "Log in from the Account tab to place bets."
+    },
+    {
+      "fr": "Connectez-vous pour parier.",
+      "en": "Log in to place a bet."
+    },
+    {
+      "fr": "Connectez-vous pour voir vos paris.",
+      "en": "Log in to see your bets."
+    },
+    {
+      "fr": "Connecté·e en tant que",
+      "en": "Logged in as"
+    },
+    {
+      "fr": "Connexion",
+      "en": "Log in"
+    },
+    {
+      "fr": "Cote",
+      "en": "Odds"
+    },
+    {
+      "fr": "Créer mon compte",
+      "en": "Create my account"
+    },
+    {
+      "fr": "Date",
+      "en": "Date"
+    },
+    {
+      "fr": "Différence",
+      "en": "Difference"
+    },
+    {
+      "fr": "Défaites",
+      "en": "Losses"
+    },
+    {
+      "fr": "En cours",
+      "en": "Open"
+    },
+    {
+      "fr": "Gagné",
+      "en": "Won"
+    },
+    {
+      "fr": "Gain",
+      "en": "Payout"
+    },
+    {
+      "fr": "Gains totaux",
+      "en": "Total winnings"
+    },
+    {
+      "fr": "Heure (HH:MM)",
+      "en": "Time (HH:MM)"
+    },
+    {
+      "fr": "Heure invalide (format HH:MM).",
+      "en": "Invalid time (HH:MM format)."
+    },
+    {
+      "fr": "Inscription",
+      "en": "Sign up"
+    },
+    {
+      "fr": "Inscrit·e le",
+      "en": "Registered on"
+    },
+    {
+      "fr": "Journée",
+      "en": "Round"
+    },
+    {
+      "fr": "Joués",
+      "en": "Played"
+    },
+    {
+      "fr": "Kubbs contre",
+      "en": "Kubbs against"
+    },
+    {
+      "fr": "Kubbs pour",
+      "en": "Kubbs for"
+    },
+    {
+      "fr": "L'inscription crédite votre compte de 1000 StatCoins.",
+      "en": "Signing up credits your account with 1000 StatCoins."
+    },
+    {
+      "fr": "La mise doit être un entier entre 1 et 100.",
+      "en": "The stake must be an integer between 1 and 100."
+    },
+    {
+      "fr": "La validation règle définitivement tous les paris du match.",
+      "en": "Validation permanently settles all bets on this match."
+    },
+    {
+      "fr": "Le mot de passe doit faire au moins 4 caractères.",
+      "en": "The password must be at least 4 characters long."
+    },
+    {
+      "fr": "Les paris sont clôturés pour ce match.",
+      "en": "Betting is closed for this match."
+    },
+    {
+      "fr": "Match",
+      "en": "Match"
+    },
+    {
+      "fr": "Match reprogrammé.",
+      "en": "Match rescheduled."
+    },
+    {
+      "fr": "Matchs joués",
+      "en": "Matches played"
+    },
+    {
+      "fr": "Meilleur·e parieur·euse",
+      "en": "Top bettor"
+    },
+    {
+      "fr": "Mes mouvements de StatCoins",
+      "en": "My StatCoins history"
+    },
+    {
+      "fr": "Mes paris",
+      "en": "My bets"
+    },
+    {
+      "fr": "Mise",
+      "en": "Stake"
+    },
+    {
+      "fr": "Mise (StatCoins)",
+      "en": "Stake (StatCoins)"
+    },
+    {
+      "fr": "Misez entre 1 et 100 StatCoins par pari.",
+      "en": "Bet between 1 and 100 StatCoins per wager."
+    },
+    {
+      "fr": "Montant",
+      "en": "Amount"
+    },
+    {
+      "fr": "Montant (négatif pour retirer)",
+      "en": "Amount (negative to withdraw)"
+    },
+    {
+      "fr": "Montant invalide.",
+      "en": "Invalid amount."
+    },
+    {
+      "fr": "Mot de passe",
+      "en": "Password"
+    },
+    {
+      "fr": "Motif",
+      "en": "Reason"
+    },
+    {
+      "fr": "Nom",
+      "en": "Name"
+    },
+    {
+      "fr": "Nom et pseudo requis.",
+      "en": "Name and username required."
+    },
+    {
+      "fr": "Nouvelle date",
+      "en": "New date"
+    },
+    {
+      "fr": "Pari enregistré :",
+      "en": "Bet placed:"
+    },
+    {
+      "fr": "Parier",
+      "en": "Place bet"
+    },
+    {
+      "fr": "Parieur·euse",
+      "en": "Bettor"
+    },
+    {
+      "fr": "Parieur·euses",
+      "en": "Bettors"
+    },
+    {
+      "fr": "Paris",
+      "en": "Bets"
+    },
+    {
+      "fr": "Paris gagnés",
+      "en": "Bets won"
+    },
+    {
+      "fr": "Paris placés",
+      "en": "Bets placed"
+    },
+    {
+      "fr": "Pas de match nul au Kubb : départagez-les !",
+      "en": "No draws in Kubb: play it off!"
+    },
+    {
+      "fr": "Perdu",
+      "en": "Lost"
+    },
+    {
+      "fr": "Personne pour l'instant",
+      "en": "Nobody yet"
+    },
+    {
+      "fr": "Pseudo",
+      "en": "Username"
+    },
+    {
+      "fr": "Pseudo et mot de passe requis.",
+      "en": "Username and password required."
+    },
+    {
+      "fr": "Pseudo ou mot de passe incorrect.",
+      "en": "Wrong username or password."
+    },
+    {
+      "fr": "Quel écart de points ?",
+      "en": "Which point margin?"
+    },
+    {
+      "fr": "Quelle équipe gagne ?",
+      "en": "Which team wins?"
+    },
+    {
+      "fr": "Reprogrammer",
+      "en": "Reschedule"
+    },
+    {
+      "fr": "Reprogrammer un match",
+      "en": "Reschedule a match"
+    },
+    {
+      "fr": "Réglé",
+      "en": "Settled"
+    },
+    {
+      "fr": "Résultat enregistré :",
+      "en": "Result saved:"
+    },
+    {
+      "fr": "Résultats",
+      "en": "Results"
+    },
+    {
+      "fr": "Saisir un résultat",
+      "en": "Enter a result"
+    },
+    {
+      "fr": "Score",
+      "en": "Score"
+    },
+    {
+      "fr": "Scores invalides.",
+      "en": "Invalid scores."
+    },
+    {
+      "fr": "Se connecter",
+      "en": "Log in"
+    },
+    {
+      "fr": "Se déconnecter",
+      "en": "Log out"
+    },
+    {
+      "fr": "Solde",
+      "en": "Balance"
+    },
+    {
+      "fr": "Solde insuffisant pour cette mise.",
+      "en": "Insufficient balance for this stake."
+    },
+    {
+      "fr": "Statut",
+      "en": "Status"
+    },
+    {
+      "fr": "Suivi",
+      "en": "Dashboard"
+    },
+    {
+      "fr": "Sélection",
+      "en": "Selection"
+    },
+    {
+      "fr": "Sélection invalide.",
+      "en": "Invalid selection."
+    },
+    {
+      "fr": "Tournoi de Kubb",
+      "en": "Kubb Tournament"
+    },
+    {
+      "fr": "Tournoi à venir",
+      "en": "Tournament ahead"
+    },
+    {
+      "fr": "Tous les paris",
+      "en": "All bets"
+    },
+    {
+      "fr": "Type",
+      "en": "Type"
+    },
+    {
+      "fr": "Type de pari",
+      "en": "Bet type"
+    },
+    {
+      "fr": "Vainqueur",
+      "en": "Winner"
+    },
+    {
+      "fr": "Valider le résultat",
+      "en": "Validate result"
+    },
+    {
+      "fr": "Victoires",
+      "en": "Wins"
+    },
+    {
+      "fr": "Votre solde",
+      "en": "Your balance"
+    },
+    {
+      "fr": "bonne chance !",
+      "en": "good luck!"
+    },
+    {
+      "fr": "gagnants",
+      "en": "winning"
+    },
+    {
+      "fr": "paris réglés",
+      "en": "bets settled"
+    },
+    {
+      "fr": "redistribués",
+      "en": "paid out"
+    },
+    {
+      "fr": "À bientôt !",
+      "en": "See you soon!"
+    },
+    {
+      "fr": "Écart",
+      "en": "Margin"
+    },
+    {
+      "fr": "Écart de points",
+      "en": "Point margin"
+    },
+    {
+      "fr": "Équipe",
+      "en": "Team"
+    },
+    {
+      "fr": "Équipe 1",
+      "en": "Team 1"
+    },
+    {
+      "fr": "Équipe 2",
+      "en": "Team 2"
+    },
+    {
+      "fr": "Équipe en tête",
+      "en": "Leading team"
+    },
+    {
+      "fr": "Évolution des StatCoins",
+      "en": "StatCoins over time"
+    }
+  ]
+}
