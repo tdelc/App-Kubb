@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install required R packages
-RUN R -e "install.packages(c('bslib', 'dplyr','tidyr','lubridate', 'DT', 'plotly', 'shiny.i18n', 'DBI', 'RSQLite', 'bsicons'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('bslib', 'dplyr','tidyr','lubridate', 'readr', 'DT', 'plotly', 'shiny.i18n', 'DBI', 'RSQLite', 'bsicons'), repos='https://cloud.r-project.org/')"
 
 # Copy app files
 RUN rm -rf /srv/shiny-server/*
