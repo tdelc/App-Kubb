@@ -97,11 +97,11 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
     # ---------------- Classement des parieur·euses ----------------
     parieurs <- reactive({
       db_ver()
-      DBI::dbGetQuery(con, "
+      dbx_get(con, "
         SELECT u.pseudo,
                u.statcoins,
                COUNT(b.bet_id)                            AS n_paris,
-               COALESCE(SUM(b.settled = 1 AND b.gain > 0), 0) AS n_gagnes,
+               COALESCE(SUM(CASE WHEN b.settled = 1 AND b.gain > 0 THEN 1 ELSE 0 END), 0) AS n_gagnes,
                COALESCE(SUM(CASE WHEN b.settled = 1 THEN b.gain ELSE 0 END), 0)
                                                           AS gains_totaux
         FROM users u

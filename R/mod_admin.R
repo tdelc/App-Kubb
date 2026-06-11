@@ -38,7 +38,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                 non_joues$home, non_joues$away, non_joues$date_match)
       )
 
-      users <- DBI::dbGetQuery(con, "SELECT user_id, pseudo FROM users ORDER BY pseudo")
+      users <- dbx_get(con, "SELECT user_id, pseudo FROM users ORDER BY pseudo")
       choix_users <- setNames(users$user_id, users$pseudo)
 
       tagList(
@@ -202,7 +202,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
         showNotification(tr("Heure invalide (format HH:MM)."), type = "error")
         return()
       }
-      DBI::dbExecute(con, "UPDATE matches SET date_match = ? WHERE match_id = ?",
+      dbx_exec(con, "UPDATE matches SET date_match = ? WHERE match_id = ?",
                      params = list(paste(format(input$nouvelle_date), heure),
                                    as.integer(input$date_match_sel)))
       touch()
@@ -214,7 +214,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       lang()
       db_ver()
       req(est_admin())
-      u <- DBI::dbGetQuery(con, "
+      u <- dbx_get(con, "
         SELECT pseudo, nom, ROUND(statcoins) AS statcoins, is_admin, created_at
         FROM users ORDER BY statcoins DESC")
       DT::datatable(

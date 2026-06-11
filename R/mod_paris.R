@@ -194,7 +194,7 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
         return()
       }
 
-      DBI::dbExecute(con, "
+      dbx_exec(con, "
         INSERT INTO bets (user_id, match_id, type, selection, mise, cote)
         VALUES (?, ?, ?, ?, ?, ?)",
         params = list(u$user_id, mid, type, sel, mise, unname(cote)))

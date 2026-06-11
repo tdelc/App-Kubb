@@ -15,7 +15,8 @@ library(DT)
 library(plotly)
 library(shiny.i18n)
 library(DBI)
-library(RSQLite)
+# library(RSQLite)
+library(RPostgres); library(pool)
 library(bsicons)
 
 # file.remove("data/kubb.sqlite")
@@ -23,7 +24,8 @@ library(bsicons)
 # ---------------- Base de données ----------------
 con <- db_connect()
 db_init(con)
-shiny::onStop(function() DBI::dbDisconnect(con))
+onStop(function() db_disconnect(con))
+# shiny::onStop(function() DBI::dbDisconnect(con))
 
 # ---------------- Internationalisation ----------------
 i18n <- Translator$new(translation_json_path = "translations/translation.json")

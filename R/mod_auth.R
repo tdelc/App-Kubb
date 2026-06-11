@@ -152,12 +152,14 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
         return()
       }
 
-      DBI::dbExecute(con, "
+      uid <- dbx_get(con, "
         INSERT INTO users (nom, pseudo, language, password, is_admin)
-        VALUES (?, ?, ?, ?, ?)",
-        params = list(nom, pseudo, language, pwd,
-                      as.integer(tolower(pseudo) %in% tolower(ADMIN_PSEUDOS))))
-      uid <- DBI::dbGetQuery(con, "SELECT last_insert_rowid() AS id")$id
+        VALUES (?, ?, ?, ?, ?) RETURNING user_id",
+                     params = list(nom, pseudo, pwd,
+                                   as.integer(tolower(pseudo) %in% tolower(ADMIN_PSEUDOS))))$user_id
+        # params = list(nom, pseudo, language, pwd,
+        #               as.integer(tolower(pseudo) %in% tolower(ADMIN_PSEUDOS))))
+      # uid <- dbx_get(con, "SELECT last_insert_rowid() AS id")$id
       add_transaction(con, uid, CREDIT_INITIAL, "Cr\u00e9dit initial")
       touch()
       user_id(uid)
@@ -180,7 +182,7 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
       lang()
       u <- req(user())
       db_ver()
-      tx <- DBI::dbGetQuery(con, "
+      tx <- dbx_get(con, "
         SELECT ts, motif, montant FROM transactions
         WHERE user_id = ? ORDER BY ts DESC, tx_id DESC",
         params = list(u$user_id))

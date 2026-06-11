@@ -74,7 +74,7 @@ cotes_vainqueur <- function(con, match_row, matches = NULL) {
     ratings[as.character(match_row$away_id)]
   )
 
-  flux <- DBI::dbGetQuery(con, "
+  flux <- dbx_get(con, "
     SELECT selection, SUM(mise) AS total
     FROM bets WHERE match_id = ? AND type = 'vainqueur'
     GROUP BY selection",
@@ -108,7 +108,7 @@ cotes_ecart <- function(con, match_row, matches = NULL) {
   }
   p_hist <- effectifs / sum(effectifs)
 
-  flux <- DBI::dbGetQuery(con, "
+  flux <- dbx_get(con, "
     SELECT selection, SUM(mise) AS total
     FROM bets WHERE match_id = ? AND type = 'ecart'
     GROUP BY selection",
@@ -132,17 +132,17 @@ cotes_ecart <- function(con, match_row, matches = NULL) {
 # ------------------------------------------------------------------
 
 settle_match <- function(con, match_id, score_home, score_away) {
-  DBI::dbExecute(con, "
+  dbx_exec(con, "
     UPDATE matches SET played = 1, score_home = ?, score_away = ?
     WHERE match_id = ?",
     params = list(score_home, score_away, match_id))
 
-  m <- DBI::dbGetQuery(con, "SELECT * FROM matches WHERE match_id = ?",
+  m <- dbx_get(con, "SELECT * FROM matches WHERE match_id = ?",
                        params = list(match_id))
   vainqueur_id <- if (score_home > score_away) m$home_id else m$away_id
   tranche <- ecart_tranche(abs(score_home - score_away))
 
-  paris <- DBI::dbGetQuery(con, "
+  paris <- dbx_get(con, "
     SELECT * FROM bets WHERE match_id = ? AND settled = 0",
     params = list(match_id))
 
@@ -155,7 +155,7 @@ settle_match <- function(con, match_id, score_home, score_away) {
       gagne <- (b$type == "vainqueur" && b$selection == as.character(vainqueur_id)) ||
                (b$type == "ecart"     && b$selection == tranche)
       gain <- if (gagne) round(b$mise * b$cote) else 0
-      DBI::dbExecute(con, "
+      dbx_exec(con, "
         UPDATE bets SET settled = 1, gain = ? WHERE bet_id = ?",
         params = list(gain, b$bet_id))
       if (gain > 0) {
