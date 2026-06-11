@@ -140,7 +140,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         m[order(-m$journee, m$date_match), c("journee", "date_match", "home", "score", "away")],
         colnames = c(tr("Journée"), tr("Date"), tr("Équipe 1"),
                      tr("Score"), tr("Équipe 2")),
-        rownames = FALSE,
+        rownames = FALSE, selection="none",
         options = list(pageLength = 10, dom = "tip")
       )
     })
@@ -171,7 +171,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         classement(),
         colnames = c(tr("Équipe"), tr("Joués"), tr("Victoires"), tr("Défaites"),
                      tr("Kubbs pour"), tr("Kubbs contre"), tr("Différence")),
-        rownames = FALSE,
+        rownames = FALSE, selection="none",
         options = list(pageLength = 8, dom = "t")
       )
     })
@@ -185,7 +185,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         x = ~statcoins,
         y = ~stats::reorder(pseudo, statcoins),
         type = "bar", orientation = "h",
-        marker = list(color = "#2A9D8F"),
+        marker = list(color = "#F4A259"),
         hovertemplate = "%{y}<br>%{x} SC<extra></extra>"
       ) |>
         plotly::layout(
@@ -204,7 +204,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         p,
         colnames = c(tr("Pseudo"), "StatCoins", tr("Paris placés"),
                      tr("Paris gagnés"), tr("Gains totaux")),
-        rownames = FALSE,
+        rownames = FALSE, selection="none",
         options = list(pageLength = 10, dom = "tip")
       )
     })

@@ -53,14 +53,9 @@ ui <- page_navbar(
     usei18n(i18n),
     tags$head(tags$link(rel = "stylesheet", href = "custom.css"))
   ),
-
+  
   nav_panel(
-    title = i18n$t("Compte"), value = "compte",
-    icon = bsicons::bs_icon("person"),
-    mod_auth_ui("auth", i18n)
-  ),
-  nav_panel(
-    title = i18n$t("Suivi"), value = "suivi",
+    title = i18n$t("Résultats"), value = "suivi",
     icon = bsicons::bs_icon("bar-chart-line"),
     mod_suivi_ui("suivi", i18n)
   ),
@@ -73,6 +68,11 @@ ui <- page_navbar(
     title = i18n$t("Admin"), value = "admin",
     icon = bsicons::bs_icon("gear"),
     mod_admin_ui("admin", i18n)
+  ),
+  nav_panel(
+    title = i18n$t("Compte"), value = "compte",
+    icon = bsicons::bs_icon("person"),
+    mod_auth_ui("auth", i18n)
   ),
 
   nav_spacer(),

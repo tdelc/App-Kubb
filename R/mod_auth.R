@@ -11,6 +11,37 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     tr <- function(x) i18n_s$t(x)
+    
+    observe({
+      showModal(modalDialog(
+        layout_column_wrap(
+          width = 1 / 2,
+          fill = FALSE,
+          card(
+            card_header(tagList(bsicons::bs_icon("door-open"), tr("Connexion"))),
+            card_body(
+              textInput(ns("login_pseudo"), tr("Pseudo")),
+              passwordInput(ns("login_pwd"), tr("Mot de passe")),
+              actionButton(ns("btn_login"), tr("Se connecter"),
+                           class = "btn-primary")
+            )
+          ),
+          card(
+            card_header(tagList(bsicons::bs_icon("person-plus"), tr("Inscription"))),
+            card_body(
+              textInput(ns("reg_nom"), tr("Nom")),
+              textInput(ns("reg_pseudo"), tr("Pseudo")),
+              passwordInput(ns("reg_pwd"), tr("Mot de passe")),
+              selectInput(ns("reg_lan"), tr("Langue"),choices = c("fr","nl","en")),
+              actionButton(ns("btn_register"), tr("Créer mon compte"),
+                           class = "btn-success"),
+              p(class = "text-muted small mt-2",
+                tr("L'inscription crédite votre compte de 1000 StatCoins."))
+            )
+          )
+        ),size = "xl", easyClose = TRUE
+      ))
+    })
 
     # ---------------- UI dynamique selon l'état de connexion ----------------
     output$ui <- renderUI({
@@ -92,6 +123,7 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
         shiny.i18n::update_lang(u$language)
         i18n_s$set_translation_language(u$language)
         lang(u$language)
+        removeModal()
         showNotification(
           sprintf("%s %s !", tr("Bienvenue"), u$pseudo), type = "message")
       } else {
@@ -132,6 +164,7 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
       shiny.i18n::update_lang(language)
       i18n_s$set_translation_language(language)
       lang(language)
+      removeModal()
       showNotification(
         sprintf("%s %s !", tr("Compte créé, bienvenue"), pseudo), type = "message")
     })
