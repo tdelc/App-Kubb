@@ -5,6 +5,10 @@
 # Lancement : shiny::runApp()
 # ------------------------------------------------------------------
 
+list.of.packages <- c('bslib', 'dplyr','tidyr','lubridate', 'readr', 'DT', 'plotly', 'shiny.i18n', 'DBI', 'RPostgres', 'pool', 'bsicons')
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
 library(shiny)
 library(bslib)
 library(dplyr)
