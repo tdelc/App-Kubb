@@ -47,6 +47,9 @@ data/*.sqlite
 data/*.sqlite-shm
 data/*.sqlite-wal
 
+# Backup
+save/
+
 # translation temp files
 po/*~
 

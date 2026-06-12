@@ -38,7 +38,8 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
     
     cotes_cache <- reactiveVal(NULL)
     observe({
-      invalidateLater(3600000)   # rafraîchissement horaire
+      # invalidateLater(3600000)   # rafraîchissement horaire
+      invalidateLater(3600000/4)   # rafraîchissement horaire
       db_ver_matchs()            # + immédiat quand un résultat tombe
       cotes_cache(cotes_tous(con, matchs()))
     })
