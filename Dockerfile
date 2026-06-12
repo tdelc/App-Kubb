@@ -3,6 +3,7 @@ FROM rocker/shiny:4.4.0
 # Install system dependencies for R packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
+    libpq-dev \
     libssl-dev \
     libxml2-dev \
     libfontconfig1-dev \
