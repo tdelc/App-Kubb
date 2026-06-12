@@ -24,11 +24,27 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       get_matches(con)
     })
 
-    a_venir <- reactive({
-      invalidateLater(60000)  # clôture automatique à l'heure du match
-      m <- matchs()
+    # a_venir <- reactive({
+    #   invalidateLater(60000)  # clôture automatique à l'heure du match
+    #   m <- matchs()
+    #   maintenant <- format(Sys.time(), "%Y-%m-%d %H:%M")
+    #   m[m$played == 0 & m$date_match > maintenant, , drop = FALSE]
+    # })
+    
+    # Remplace le reactive a_venir()
+    ids_ouverts <- reactiveVal(NULL)
+    observe({
+      invalidateLater(60000)            # clôture à l'heure du match
+      m <- matchs()                     # suit db_ver (scores saisis, etc.)
       maintenant <- format(Sys.time(), "%Y-%m-%d %H:%M")
-      m[m$played == 0 & m$date_match > maintenant, , drop = FALSE]
+      ids <- m$match_id[m$played == 0 & m$date_match > maintenant]
+      if (!identical(ids, ids_ouverts())) ids_ouverts(ids)   # silence sinon
+    })
+    
+    # Cotes recalculées à chaque écriture en base — 1 requête, partagée
+    cotes_du_moment <- reactive({
+      db_ver()
+      cotes_tous(con, matchs())
     })
 
     # ---------------- Entête ----------------
@@ -52,8 +68,13 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
 
     # ---------------- Cartes des matchs à venir ----------------
     output$cards <- renderUI({
+      # lang()
+      # av <- a_venir()
       lang()
-      av <- a_venir()
+      ids <- ids_ouverts()
+      req(!is.null(ids))
+      m_all <- isolate(matchs())
+      av <- m_all[m_all$match_id %in% ids, , drop = FALSE]
       if (nrow(av) == 0) {
         return(card(card_body(tr("Aucun match à venir : le tournoi est terminé !"))))
       }
@@ -70,7 +91,7 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
           title = sprintf("%s %d — %s", tr("Journée"), j,
                           format(as.Date(date_j),"%d/%m/%Y")),
           value = paste0("j", j),
-          layout_column_wrap(width = 1 / 2, fill = FALSE, !!!cartes)
+          layout_column_wrap(width = 1 / 4, fill = FALSE, !!!cartes)
         )
       })
 
@@ -90,12 +111,11 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
 
       choix_vainqueur <- setNames(
         c(m$home_id, m$away_id),
-        c(sprintf("%s (%.2f)", m$home, cv["home"]),
-          sprintf("%s (%.2f)", m$away, cv["away"]))
+        c(m$home,m$away)
       )
       choix_ecart <- setNames(
         ECART_TRANCHES,
-        sprintf("%s %s (%.2f)", tr("Écart"), ECART_TRANCHES, ce)
+        sprintf("%s %s", tr("Écart"), ECART_TRANCHES)
       )
 
       card(
@@ -104,21 +124,9 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
           class = "d-flex justify-content-between align-items-center",
           span(strong(m$home), " vs ", strong(m$away)),
           span(class = "badge bg-secondary",m$date_match)
-          #      substr(m$date_match, 12, 16),
-          #      substr(m$date_match, 1, 10)),
-          # span(class = "badge bg-secondary",
-          #      substr(m$date_match, 12, 16))
         ),
         card_body(
-          div(class = "cotes-resume mb-2",
-              span(class = "badge bg-primary me-1",
-                   sprintf("%s %.2f", m$home, cv["home"])),
-              span(class = "badge bg-primary me-1",
-                   sprintf("%s %.2f", m$away, cv["away"])),
-              span(class = "badge bg-info",
-                   sprintf("%s 1-2: %.2f | 3-5: %.2f | 6: %.2f",
-                           tr("Écart"), ce["1-2"], ce["3-5"], ce["6"]))
-          ),
+          uiOutput(ns(paste0("cotes_", mid))),
           radioButtons(ns(paste0("type_", mid)), tr("Type de pari"),
                        choiceNames = c(tr("Vainqueur"), tr("Écart de points")),
                        choiceValues = c("vainqueur", "ecart"),
@@ -148,6 +156,23 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       observeEvent(input[[paste0("parier_", mid)]], {
         placer_pari(mid)
       }, ignoreInit = TRUE)
+    })
+    
+    purrr::walk(tous_les_matchs$match_id, function(mid) {
+      output[[paste0("cotes_", mid)]] <- renderUI({
+        lang()
+        ct <- cotes_du_moment()[[as.character(mid)]]
+        req(ct)
+        m <- tous_les_matchs[tous_les_matchs$match_id == mid, ]
+        div(class = "cotes-resume mb-2",
+            span(class = "badge bg-primary me-1",
+                 sprintf("%s %.2f", m$home, ct$vainqueur["home"])),
+            span(class = "badge bg-primary me-1",
+                 sprintf("%s %.2f", m$away, ct$vainqueur["away"])),
+            span(class = "badge bg-info",
+                 sprintf("%s 1-2: %.2f | 3-5: %.2f | 6: %.2f", tr("Écart"),
+                         ct$ecart["1-2"], ct$ecart["3-5"], ct$ecart["6"])))
+      })
     })
 
     placer_pari <- function(mid) {

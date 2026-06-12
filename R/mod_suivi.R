@@ -39,7 +39,7 @@ mod_suivi_ui <- function(id, i18n) {
       ),
       nav_panel(
         i18n$t("Classement des parieur·euses"),
-        plotly::plotlyOutput(ns("plt_parieurs"), height = "350px"),
+        plotly::plotlyOutput(ns("plt_parieurs"), height = "800px"),
         DT::DTOutput(ns("tbl_parieurs"))
       ),
       nav_panel(
@@ -102,6 +102,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
                u.statcoins,
                COUNT(b.bet_id)                            AS n_paris,
                COALESCE(SUM(CASE WHEN b.settled = 1 AND b.gain > 0 THEN 1 ELSE 0 END), 0) AS n_gagnes,
+               COALESCE(SUM(CASE WHEN b.settled = 0 THEN b.mise ELSE 0 END), 0) AS en_jeu,
                COALESCE(SUM(CASE WHEN b.settled = 1 THEN b.gain ELSE 0 END), 0)
                                                           AS gains_totaux
         FROM users u
@@ -180,17 +181,65 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
       lang()
       p <- parieurs()
       validate(need(nrow(p) > 0, tr("Personne pour l'instant")))
+      
+      p <- p |>
+        dplyr::mutate(
+          delta   = statcoins - CREDIT_INITIAL,
+          couleur = dplyr::if_else(delta >= 0, "#2A9D8F", "#C44536"),
+          rang    = dplyr::row_number(dplyr::desc(statcoins)),
+          label   = dplyr::case_when(
+            rang == 1 ~ paste0("\U0001F947 ", pseudo),   # 🥇
+            rang == 2 ~ paste0("\U0001F948 ", pseudo),   # 🥈
+            rang == 3 ~ paste0("\U0001F949 ", pseudo),   # 🥉
+            TRUE      ~ pseudo
+          )
+        ) |>
+        dplyr::arrange(statcoins)   # le/la meilleur·e en haut
+      
+      # Graduations exprimées en solde réel, pas en écart
+      amp   <- max(abs(p$delta), 50)
+      ticks <- pretty(c(-amp, amp))
+      
       plotly::plot_ly(
         p,
-        x = ~statcoins,
-        y = ~stats::reorder(pseudo, statcoins),
+        x = ~delta,
+        y = ~factor(label, levels = label),
         type = "bar", orientation = "h",
-        marker = list(color = "#F4A259"),
-        hovertemplate = "%{y}<br>%{x} SC<extra></extra>"
+        marker = list(color = ~couleur,
+                      line = list(color = "rgba(59,44,32,0.25)", width = 1)),
+        hovertemplate = paste0(
+          "<b>%{y}</b><br>",
+          "%{x:+,d} ", tr("vs crédit initial"), "<br>",
+          "<extra></extra>"
+        ),
+        text = ~paste0(round(statcoins), " SC"),
+        textposition = "outside",
+        textfont = list(color = "#3B2C20", family = "Nunito"),
+        cliponaxis = FALSE
       ) |>
         plotly::layout(
-          xaxis = list(title = "StatCoins"),
+          xaxis = list(
+            title = "StatCoins",
+            tickvals = ticks,
+            ticktext = ticks + CREDIT_INITIAL,   # l'axe affiche 800, 1000, 1200...
+            range = c(min(ticks) * 1.15, max(ticks) * 1.15),
+            zeroline = FALSE
+          ),
           yaxis = list(title = ""),
+          shapes = list(list(
+            type = "line", x0 = 0, x1 = 0, y0 = -0.5, y1 = nrow(p) - 0.5,
+            line = list(color = "#3B2C20", width = 1.5, dash = "dot")
+          )),
+          annotations = list(list(
+            x = 0, y = 1.06, xref = "x", yref = "paper",
+            text = paste0(tr("Crédit initial"), " (", CREDIT_INITIAL, " SC)"),
+            showarrow = FALSE, font = list(size = 11, color = "#3B2C20")
+          )),
+          bargap = 0.35,
+          margin = list(r = 70),
+          font = list(family = "Nunito"),
+          hoverlabel = list(bgcolor = "#FFFBF2", bordercolor = "#3B2C20",
+                            font = list(family = "Nunito", color = "#3B2C20")),
           paper_bgcolor = "rgba(0,0,0,0)",
           plot_bgcolor = "rgba(0,0,0,0)"
         )

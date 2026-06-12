@@ -169,3 +169,45 @@ settle_match <- function(con, match_id, score_home, score_away) {
 
   list(n_paris = nrow(paris), n_gagnants = n_gagnants, total_paye = total_paye)
 }
+
+cotes_tous <- function(con, matches) {
+  ratings <- compute_elo(matches)
+  flux <- dbx_get(con, "
+    SELECT match_id, type, selection, SUM(mise) AS total
+    FROM bets GROUP BY match_id, type, selection")
+  
+  played <- matches[matches$played == 1, , drop = FALSE]
+  effectifs <- ECART_PRIOR
+  if (nrow(played) > 0) {
+    obs <- table(ecart_tranche(abs(played$score_home - played$score_away)))
+    for (tranche in names(obs)) effectifs[tranche] <- effectifs[tranche] + obs[[tranche]]
+  }
+  p_hist <- effectifs / sum(effectifs)
+  
+  res <- lapply(seq_len(nrow(matches)), function(i) {
+    m <- matches[i, ]
+    f <- flux[flux$match_id == m$match_id, , drop = FALSE]
+    
+    fv <- f[f$type == "vainqueur", , drop = FALSE]
+    mise_h <- sum(fv$total[fv$selection == as.character(m$home_id)])
+    mise_a <- sum(fv$total[fv$selection == as.character(m$away_id)])
+    vol <- mise_h + mise_a
+    w <- vol / (vol + POIDS_MARCHE_VAINQUEUR)
+    p_elo_h <- prob_elo(ratings[as.character(m$home_id)],
+                        ratings[as.character(m$away_id)])
+    p_h <- pmin(pmax((1 - w) * p_elo_h + w * (mise_h + 1) / (vol + 2), 0.05), 0.95)
+    
+    fe <- f[f$type == "ecart", , drop = FALSE]
+    mises <- setNames(rep(0, 3), ECART_TRANCHES)
+    if (nrow(fe) > 0) mises[fe$selection] <- fe$total
+    vole <- sum(mises)
+    we <- vole / (vole + POIDS_MARCHE_ECART)
+    pe <- pmin(pmax((1 - we) * p_hist[ECART_TRANCHES] +
+                      we * (mises + 1)[ECART_TRANCHES] / (vole + 3), 0.03), 0.95)
+    
+    list(vainqueur = c(home = unname(clamp_cote(p_h)),
+                       away = unname(clamp_cote(1 - p_h))),
+         ecart = setNames(clamp_cote(pe), ECART_TRANCHES))
+  })
+  setNames(res, matches$match_id)
+}
