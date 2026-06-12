@@ -93,7 +93,7 @@ server <- function(input, output, session) {
   # d'un·e utilisateur·rice contamine les autres sessions)
   i18n_s <- i18n$clone()
   lang <- reactiveVal("fr")
-
+  
   observeEvent(input$selected_lang, {
     shiny.i18n::update_lang(input$selected_lang)
     i18n_s$set_translation_language(input$selected_lang)
@@ -101,12 +101,18 @@ server <- function(input, output, session) {
   }, ignoreInit = TRUE)
 
   # Version de la base : toutes les sessions se synchronisent dessus
-  db_ver <- reactivePoll(
-    2000, session,
-    checkFunc = function() db_version(con),
-    valueFunc = function() db_version(con)
-  )
+  # db_ver <- reactivePoll(
+  #   2000, session,
+  #   checkFunc = function() db_version(con),
+  #   valueFunc = function() db_version(con)
+  # )
   touch <- function() db_touch(con)
+  
+  poll_meta <- reactivePoll(2000, session,
+                            checkFunc = function() paste(db_versions(con), collapse = "-"),
+                            valueFunc = function() db_versions(con))
+  db_ver        <- reactive(poll_meta()$version)
+  db_ver_matchs <- reactive(poll_meta()$version_matchs)
 
   # Utilisateur·rice courant·e (re-lu à chaque écriture en base,
   # pour que le solde affiché soit toujours juste)
@@ -128,7 +134,7 @@ server <- function(input, output, session) {
   })
 
   mod_auth_server("auth", con, user, user_id, db_ver, touch, i18n_s, lang)
-  mod_paris_server("paris", con, user, db_ver, touch, i18n_s, lang)
+  mod_paris_server("paris", con, user, db_ver, db_ver_matchs, touch, i18n_s, lang)
   mod_suivi_server("suivi", con, db_ver, i18n_s, lang)
   mod_admin_server("admin", con, user, db_ver, touch, i18n_s, lang)
   

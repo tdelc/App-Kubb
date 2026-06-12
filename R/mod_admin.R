@@ -170,7 +170,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                           as.integer(input$score_match),
                           as.integer(input$score_home),
                           as.integer(input$score_away))
-      touch()
+      db_touch_matchs(con)
       showNotification(
         sprintf("%s %d %s, %d %s, %d SC %s.",
                 tr("Résultat enregistré :"), res$n_paris, tr("paris réglés"),
@@ -205,7 +205,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       dbx_exec(con, "UPDATE matches SET date_match = ? WHERE match_id = ?",
                      params = list(paste(format(input$nouvelle_date), heure),
                                    as.integer(input$date_match_sel)))
-      touch()
+      db_touch_matchs(con)
       showNotification(tr("Match reprogrammé."), type = "message")
     })
 

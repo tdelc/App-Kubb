@@ -24,14 +24,23 @@ mod_paris_ui <- function(id, i18n) {
   )
 }
 
-mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
+mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s, lang) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     tr <- function(x) i18n_s$t(x)
 
-    matchs <- reactive({
-      db_ver()
-      get_matches(con)
+    # matchs <- reactive({
+    #   db_ver()
+    #   get_matches(con)
+    # })
+    
+    matchs <- reactive({ db_ver_matchs(); get_matches(con) })  # plus déclenché par les paris
+    
+    cotes_cache <- reactiveVal(NULL)
+    observe({
+      invalidateLater(3600000)   # rafraîchissement horaire
+      db_ver_matchs()            # + immédiat quand un résultat tombe
+      cotes_cache(cotes_tous(con, matchs()))
     })
     
     ids_ouverts <- reactiveVal(NULL)
@@ -159,7 +168,7 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
     purrr::walk(tous_les_matchs$match_id, function(mid) {
       output[[paste0("cotes_", mid)]] <- renderUI({
         lang()
-        ct <- cotes_du_moment()[[as.character(mid)]]
+        ct <- cotes_cache()[[as.character(mid)]]
         req(ct)
         m <- tous_les_matchs[tous_les_matchs$match_id == mid, ]
         div(class = "cotes-resume mb-2",
@@ -203,7 +212,7 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       }
 
       # Cote recalculée côté serveur au moment du clic, puis figée
-      ct <- isolate(cotes_du_moment())[[as.character(mid)]]
+      ct <- isolate(cotes_cache())[[as.character(mid)]]
       m  <- tous_les_matchs[tous_les_matchs$match_id == mid, ]
       if (type == "vainqueur") {
         sel  <- as.character(input[[paste0("sel_v_", mid)]])
