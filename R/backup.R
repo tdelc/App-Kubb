@@ -103,6 +103,29 @@ kubb_backup <- function() {
 }
 
 # ------------------------------------------------------------------
+# Destruction (SUPPRIME les données actuelles de la base !)
+# ------------------------------------------------------------------
+
+kubb_delete <- function() {
+  
+  if (interactive()) {
+    rep <- readline("Taper SUPPRIMER pour confirmer : ")
+    if (!identical(rep, "SUPPRIMER")) stop("Abandon : suppression non confirmée.")
+  } else {
+    stop("Par sécurité, kubb_delete() ne s'exécute qu'en session interactive.")
+  }
+  
+  con <- kubb_connect()
+  on.exit(DBI::dbDisconnect(con), add = TRUE)
+  
+  DBI::dbWithTransaction(con, {
+    for (t in c("bets", "transactions", "matches", "users", "teams", "meta")) {
+      DBI::dbExecute(con, paste("DROP TABLE", t))
+    }
+  })
+}
+
+# ------------------------------------------------------------------
 # Restauration (ECRASE les données actuelles de la base !)
 # ------------------------------------------------------------------
 
