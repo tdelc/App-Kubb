@@ -6,11 +6,21 @@ mod_paris_ui <- function(id, i18n) {
   ns <- NS(id)
   tagList(
     uiOutput(ns("entete")),
-    card(
-      card_header(tagList(bsicons::bs_icon("ticket-perforated"), i18n$t("Mes paris"))),
-      card_body(DT::DTOutput(ns("tbl_mes_paris")))
-    ),
-    uiOutput(ns("cards"))
+    navset_card_tab(
+      nav_panel(
+        i18n$t("Parier"),
+        uiOutput(ns("cards"))
+      ),
+      nav_panel(
+        i18n$t("Mes paris"),
+        DT::DTOutput(ns("tbl_mes_paris"))
+      )
+    )
+    # card(
+    #   card_header(tagList(bsicons::bs_icon("ticket-perforated"), i18n$t("Mes paris"))),
+    #   card_body(DT::DTOutput(ns("tbl_mes_paris")))
+    # ),
+    # uiOutput(ns("cards"))
   )
 }
 
@@ -23,15 +33,7 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       db_ver()
       get_matches(con)
     })
-
-    # a_venir <- reactive({
-    #   invalidateLater(60000)  # clôture automatique à l'heure du match
-    #   m <- matchs()
-    #   maintenant <- format(Sys.time(), "%Y-%m-%d %H:%M")
-    #   m[m$played == 0 & m$date_match > maintenant, , drop = FALSE]
-    # })
     
-    # Remplace le reactive a_venir()
     ids_ouverts <- reactiveVal(NULL)
     observe({
       invalidateLater(60000)            # clôture à l'heure du match
@@ -45,24 +47,20 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
     cotes_du_moment <- reactive({
       db_ver()
       cotes_tous(con, matchs())
-    })
+    }) |> bindCache(db_ver())
 
     # ---------------- Entête ----------------
     output$entete <- renderUI({
       lang()
       u <- user()
       if (is.null(u)) {
-        card(
-          class = "border-warning mb-3",
-          card_body(tagList(
-            bsicons::bs_icon("info-circle"),
-            tr("Connectez-vous dans l'onglet Compte pour pouvoir parier.")
-          ))
+        p(class = "lead",
+          tr("Connectez-vous dans l'onglet Compte pour pouvoir parier.")
         )
       } else {
         p(class = "lead",
           sprintf("%s : %s SC. %s", tr("Votre solde"), round(u$statcoins),
-                  tr("Misez entre 1 et 100 StatCoins par pari.")))
+                  tr("Misez entre 1 et 200 StatCoins par pari.")))
       }
     })
 
@@ -97,8 +95,8 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
 
       accordion(
         id = ns("acc_journees"),
-        # open = paste0("j", min(av$journee)),
-        open = FALSE,
+        open = paste0("j", min(av$journee)),
+        # open = FALSE,
         !!!panels
       )
     })
@@ -128,7 +126,7 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
         card_body(
           uiOutput(ns(paste0("cotes_", mid))),
           radioButtons(ns(paste0("type_", mid)), tr("Type de pari"),
-                       choiceNames = c(tr("Vainqueur"), tr("Écart de points")),
+                       choiceNames = c(tr("Vainqueur"), tr("Écart de points (au score)")),
                        choiceValues = c("vainqueur", "ecart"),
                        inline = TRUE),
           conditionalPanel(
@@ -195,7 +193,7 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       mise <- suppressWarnings(as.numeric(input[[paste0("mise_", mid)]]))
 
       if (is.na(mise) || mise < MISE_MIN || mise > MISE_MAX || mise != round(mise)) {
-        showNotification(tr("La mise doit être un entier entre 1 et 100."),
+        showNotification(tr("La mise doit être un entier entre 1 et 200"),
                          type = "warning")
         return()
       }
@@ -205,28 +203,48 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       }
 
       # Cote recalculée côté serveur au moment du clic, puis figée
+      ct <- isolate(cotes_du_moment())[[as.character(mid)]]
+      m  <- tous_les_matchs[tous_les_matchs$match_id == mid, ]
       if (type == "vainqueur") {
-        sel <- as.character(input[[paste0("sel_v_", mid)]])
-        cv <- cotes_vainqueur(con, m, m_all)
-        cote <- if (sel == as.character(m$home_id)) cv["home"] else cv["away"]
+        sel  <- as.character(input[[paste0("sel_v_", mid)]])
+        cote <- if (sel == as.character(m$home_id)) ct$vainqueur["home"] else ct$vainqueur["away"]
       } else {
-        sel <- as.character(input[[paste0("sel_e_", mid)]])
-        ce <- cotes_ecart(con, m, m_all)
-        cote <- ce[sel]
+        sel  <- as.character(input[[paste0("sel_e_", mid)]])
+        cote <- ct$ecart[sel]
       }
       if (is.na(cote)) {
         showNotification(tr("Sélection invalide."), type = "error")
         return()
       }
 
-      dbx_exec(con, "
-        INSERT INTO bets (user_id, match_id, type, selection, mise, cote)
-        VALUES (?, ?, ?, ?, ?, ?)",
-        params = list(u$user_id, mid, type, sel, mise, unname(cote)))
-      add_transaction(con, u$user_id, -mise,
-                      sprintf("Mise sur le match #%d", mid))
-      touch()
-
+      res <- dbx_get(con, "
+            WITH u AS (
+              UPDATE users SET statcoins = statcoins - ?::double precision
+              WHERE user_id = ?::int AND statcoins >= ?::double precision
+              RETURNING user_id
+            ), b AS (
+              INSERT INTO bets (user_id, match_id, type, selection, mise, cote)
+              SELECT user_id, ?::int, ?::text, ?::text,
+                     ?::double precision, ?::double precision
+              FROM u
+              RETURNING bet_id
+            ), t AS (
+              INSERT INTO transactions (user_id, montant, motif)
+              SELECT user_id, ?::double precision, ?::text FROM u
+            ), v AS (
+              UPDATE meta SET version = version + 1
+              WHERE EXISTS (SELECT 1 FROM u)
+            )
+            SELECT bet_id FROM b",
+                     params = list(mise, u$user_id, mise,
+                                   mid, type, sel, mise, unname(cote),
+                                   -mise, sprintf("Mise sur le match #%d", mid)))
+      
+      if (nrow(res) == 0) {
+        showNotification(tr("Solde insuffisant pour cette mise."), type = "error")
+        return()
+      }
+      
       showNotification(
         sprintf("%s %d SC @ %.2f — %s", tr("Pari enregistré :"), mise, cote,
                 tr("bonne chance !")),
@@ -239,9 +257,7 @@ mod_paris_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       u <- user()
       db_ver()
       if (is.null(u)) {
-        return(DT::datatable(
-          data.frame(x = tr("Connectez-vous pour voir vos paris.")),
-          rownames = FALSE, colnames = "", options = list(dom = "t")))
+        return(NULL)
       }
       b <- get_bets(con, u$user_id)
       if (nrow(b) == 0) {

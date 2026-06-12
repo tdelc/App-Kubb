@@ -22,7 +22,7 @@ ADMIN_PSEUDOS <- c("thomas")
 
 CREDIT_INITIAL <- 1000
 MISE_MIN <- 1
-MISE_MAX <- 100
+MISE_MAX <- 200
 
 # Opérateur "valeur par défaut" (présent dans R >= 4.4 et rlang, redéfini par sûreté)
 `%||%` <- function(a, b) if (is.null(a)) b else a

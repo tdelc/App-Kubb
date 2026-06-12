@@ -39,7 +39,7 @@ mod_suivi_ui <- function(id, i18n) {
       ),
       nav_panel(
         i18n$t("Classement des parieur·euses"),
-        plotly::plotlyOutput(ns("plt_parieurs"), height = "800px"),
+        plotly::plotlyOutput(ns("plt_parieurs"), height = "600px"),
         DT::DTOutput(ns("tbl_parieurs"))
       ),
       nav_panel(
@@ -252,7 +252,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
       DT::datatable(
         p,
         colnames = c(tr("Pseudo"), "StatCoins", tr("Paris placés"),
-                     tr("Paris gagnés"), tr("Gains totaux")),
+                     tr("Paris gagnés"), tr("Paris perdus"), tr("Gains totaux")),
         rownames = FALSE, selection="none",
         options = list(pageLength = 10, dom = "tip")
       )

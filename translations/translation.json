@@ -205,6 +205,16 @@
       "en": "Kubbs for",
       "nl": "Kubbs voor"
     },
+	{
+      "fr": "Crédit initial",
+      "en": "Initial credit",
+      "nl": "Aanvankelijke krediet"
+    },
+	{
+      "fr": "vs crédit initial",
+      "en": "vs initial credit",
+      "nl": "vs aanvankelijke krediet"
+    },
     {
       "fr": "L'inscription crédite votre compte de 1000 StatCoins.",
       "en": "Signing up credits your account with 1000 StatCoins.",
@@ -342,8 +352,13 @@
     },
     {
       "fr": "Paris gagnés",
-      "en": "Bets won",
+      "en": "Winning bets",
       "nl": "Gewonnen weddenschappen"
+    },
+	{
+      "fr": "Paris perdus",
+      "en": "Missed Bets",
+      "nl": "Verloren weddenschappen"
     },
     {
       "fr": "Paris placés",
@@ -541,9 +556,9 @@
       "nl": "Marge"
     },
     {
-      "fr": "Écart de points",
+      "fr": "Écart de points (au score)",
       "en": "Point margin",
-      "nl": "Puntenmarge"
+      "nl": "Puntenverschil (in de score)"
     },
     {
       "fr": "Équipe",
