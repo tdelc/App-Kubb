@@ -356,9 +356,9 @@
       "nl": "Gewonnen weddenschappen"
     },
 	{
-      "fr": "Paris perdus",
-      "en": "Missed Bets",
-      "nl": "Verloren weddenschappen"
+      "fr": "Paris en cours",
+      "en": "Current Bets",
+      "nl": "Lopende weddenschappen"
     },
     {
       "fr": "Paris placés",

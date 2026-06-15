@@ -252,7 +252,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
       DT::datatable(
         p,
         colnames = c(tr("Pseudo"), "StatCoins", tr("Paris placés"),
-                     tr("Paris gagnés"), tr("Paris perdus"), tr("Gains totaux")),
+                     tr("Paris gagnés"), tr("Paris en cours"), tr("Gains totaux")),
         rownames = FALSE, selection="none",
         options = list(pageLength = 10, dom = "tip")
       )
