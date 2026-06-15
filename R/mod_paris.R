@@ -184,6 +184,8 @@ mod_paris_server <- function(id, con, user, db_ver_matchs, touch, i18n_s, lang) 
         showNotification(tr("Connectez-vous pour parier."), type = "warning")
         return()
       }
+      
+      shinyjs::disable(paste0("parier_", mid))
 
       m_all <- get_matches(con)
       m <- m_all[m_all$match_id == mid, , drop = FALSE]
@@ -249,6 +251,8 @@ mod_paris_server <- function(id, con, user, db_ver_matchs, touch, i18n_s, lang) 
         showNotification(tr("Solde insuffisant pour cette mise."), type = "error")
         return()
       }
+      
+      shinyjs::enable(paste0("parier_", mid))
       
       showNotification(
         sprintf("%s %d SC @ %.2f — %s", tr("Pari enregistré :"), mise, cote,

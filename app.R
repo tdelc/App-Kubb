@@ -10,6 +10,7 @@
 # if(length(new.packages)) install.packages(new.packages)
 
 library(shiny)
+library(shinyjs)
 library(bslib)
 library(dplyr)
 library(tidyr)

@@ -329,3 +329,52 @@ add_transaction <- function(con, user_id, montant, motif) {
     UPDATE users SET statcoins = statcoins + ? WHERE user_id = ?",
            params = list(montant, user_id))
 }
+
+# ------------------------------------------------------------------
+# Annulation de paris (admin) : rembourse la mise, trace dans le grand
+# livre, supprime le pari. Atomique par pari (CTE), et restreint aux
+# paris NON réglés (settled = 0) : on ne touche jamais à un match déjà
+# joué. Les bet_id déjà réglés ou inexistants sont silencieusement
+# ignorés (le garde-fou SQL empêche tout double remboursement, même si
+# la sélection de l'admin était périmée).
+# ------------------------------------------------------------------
+
+annuler_paris <- function(con, bet_ids) {
+  bet_ids <- unique(as.integer(bet_ids))
+  bet_ids <- bet_ids[!is.na(bet_ids)]
+  
+  n_ok <- 0L
+  total_rendu <- 0
+  
+  for (bid in bet_ids) {
+    res <- dbx_get(con, "
+      WITH d AS (
+        DELETE FROM bets
+        WHERE bet_id = ? AND settled = 0
+        RETURNING bet_id, user_id, mise
+      ), u AS (
+        UPDATE users SET statcoins = statcoins + (SELECT mise FROM d)
+        WHERE user_id = (SELECT user_id FROM d)
+        RETURNING user_id
+      ), t AS (
+        INSERT INTO transactions (user_id, montant, motif)
+        SELECT user_id, mise,
+               '[Admin] Annulation du pari #' || bet_id::text
+        FROM d
+      )
+      SELECT mise FROM d",
+                   params = list(bid))
+    
+    if (nrow(res) == 1) {
+      n_ok <- n_ok + 1L
+      total_rendu <- total_rendu + res$mise[1]
+    }
+  }
+  
+  # Une seule bascule de version : réveille les sessions (solde + tables)
+  if (n_ok > 0) db_touch(con)
+  
+  list(n_annules = n_ok,
+       total_rendu = total_rendu,
+       n_ignores = length(bet_ids) - n_ok)
+}
