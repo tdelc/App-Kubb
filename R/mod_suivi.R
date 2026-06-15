@@ -41,11 +41,11 @@ mod_suivi_ui <- function(id, i18n) {
         i18n$t("Classement des parieur·euses"),
         plotly::plotlyOutput(ns("plt_parieurs"), height = "600px"),
         DT::DTOutput(ns("tbl_parieurs"))
-      ),
-      nav_panel(
-        i18n$t("Évolution des StatCoins"),
-        plotly::plotlyOutput(ns("plt_evolution"), height = "420px")
       )
+      # nav_panel(
+      #   i18n$t("Évolution des StatCoins"),
+      #   plotly::plotlyOutput(ns("plt_evolution"), height = "420px")
+      # )
     )
   )
 }
