@@ -24,7 +24,7 @@ mod_paris_ui <- function(id, i18n) {
   )
 }
 
-mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s, lang) {
+mod_paris_server <- function(id, con, user, db_ver_matchs, touch, i18n_s, lang) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     tr <- function(x) i18n_s$t(x)
@@ -38,7 +38,6 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
     
     cotes_cache <- reactiveVal(NULL)
     observe({
-      # invalidateLater(3600000)   # rafraîchissement horaire
       invalidateLater(3600000/4)   # rafraîchissement horaire
       db_ver_matchs()            # + immédiat quand un résultat tombe
       cotes_cache(cotes_tous(con, matchs()))
@@ -55,9 +54,9 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
     
     # Cotes recalculées à chaque écriture en base — 1 requête, partagée
     cotes_du_moment <- reactive({
-      db_ver()
+      db_ver_matchs()
       cotes_tous(con, matchs())
-    }) |> bindCache(db_ver())
+    }) |> bindCache(db_ver_matchs())
 
     # ---------------- Entête ----------------
     output$entete <- renderUI({
@@ -86,8 +85,6 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
       if (nrow(av) == 0) {
         return(card(card_body(tr("Aucun match à venir : le tournoi est terminé !"))))
       }
-
-      m_all <- matchs()
       panels <- lapply(sort(unique(av$journee)), function(j) {
         mj <- av[av$journee == j, , drop = FALSE]
         date_j <- mj |> count(date_match = substr(date_match, 1, 10), name = "nb") |> 
@@ -113,8 +110,6 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
 
     # Construit la carte d'un match, avec ses cotes du moment
     carte_match <- function(m, m_all) {
-      cv <- cotes_vainqueur(con, m, m_all)
-      ce <- cotes_ecart(con, m, m_all)
       mid <- m$match_id
 
       choix_vainqueur <- setNames(
@@ -265,7 +260,7 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
     output$tbl_mes_paris <- DT::renderDT({
       lang()
       u <- user()
-      db_ver()
+      db_ver_matchs()
       if (is.null(u)) {
         return(NULL)
       }

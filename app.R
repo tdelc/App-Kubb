@@ -138,7 +138,7 @@ server <- function(input, output, session) {
   })
 
   mod_auth_server("auth", con, user, user_id, db_ver, touch, i18n_s, lang)
-  mod_paris_server("paris", con, user, db_ver, db_ver_matchs, touch, i18n_s, lang)
+  mod_paris_server("paris", con, user, db_ver_matchs, touch, i18n_s, lang)
   mod_suivi_server("suivi", con, db_ver, i18n_s, lang)
   mod_admin_server("admin", con, user, db_ver, touch, i18n_s, lang)
   
