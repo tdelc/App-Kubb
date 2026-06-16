@@ -107,6 +107,34 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                         
                       )
                     )
+          ),
+          nav_panel(tr("Stats"),
+                    card(
+                      card_header(tagList(bsicons::bs_icon("bar-chart-line"),
+                                          tr("Visuels prêts à partager"))),
+                      card_body(
+                        layout_column_wrap(
+                          width = 1 / 3, fill = FALSE,
+                          selectInput(ns("stat_viz"), tr("Visualisation"),
+                                      choices = setNames(
+                                        names(STAT_VIZ),
+                                        vapply(STAT_VIZ, `[[`, character(1), "label"))),
+                          selectInput(ns("stat_format"), tr("Format image"),
+                                      choices = c("Carré 1080×1080"  = "carre",
+                                                  "Paysage 1200×675" = "paysage",
+                                                  "Story 1080×1350"  = "story")),
+                          numericInput(ns("stat_topn"), tr("Top N (si applicable)"),
+                                       value = 8, min = 3, max = 20, step = 1)
+                        ),
+                        div(class = "border rounded p-2 bg-white",
+                            plotOutput(ns("stat_plot"), height = "560px")),
+                        div(class = "d-flex gap-2 mt-2",
+                            downloadButton(ns("dl_stat"), tr("Télécharger le PNG"),
+                                           class = "btn-primary")),
+                        p(class = "text-muted small mt-2",
+                          tr("Astuce : clic droit sur l'image → « Copier l'image » pour un collage direct, ou téléchargez le PNG au format choisi. Les textes sont déjà en FR/NL dans l'image."))
+                      )
+                    )
           )
         )
       )
@@ -301,6 +329,41 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       }
       showNotification(msg, type = "message", duration = 8)
     })
+    
+    # ---------------- Stats (visuels à partager) ----------------
+    stats_data <- reactive({
+      db_ver()
+      req(est_admin())
+      list(
+        bets   = get_bets(con),
+        tx     = get_transactions(con),
+        users  = dbx_get(con, "SELECT user_id, pseudo, nom, statcoins FROM users"),
+        teams  = get_teams(con),
+        matchs = get_matches(con)
+      )
+    })
+    
+    stat_plot_courant <- reactive({
+      req(est_admin(), input$stat_viz)
+      topn <- suppressWarnings(as.integer(input$stat_topn))
+      if (is.na(topn) || topn < 1) topn <- 8
+      STAT_VIZ[[input$stat_viz]]$f(stats_data(), topn)
+    })
+    
+    output$stat_plot <- renderPlot({ stat_plot_courant() }, res = 96)
+    
+    output$dl_stat <- downloadHandler(
+      filename = function() {
+        sprintf("kubb_%s_%s.png", input$stat_viz %||% "stat",
+                format(Sys.time(), "%Y%m%d_%H%M"))
+      },
+      content = function(file) {
+        dim <- STAT_FORMATS[[input$stat_format %||% "carre"]]
+        ggplot2::ggsave(file, plot = stat_plot_courant(),
+                        width = dim$w, height = dim$h, units = "px",
+                        dpi = 120, bg = "white")
+      }
+    )
     
     # ---------------- Tables de supervision ----------------
     output$tbl_users <- DT::renderDT({
