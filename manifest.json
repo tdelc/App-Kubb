@@ -93,13 +93,7 @@
         "Maintainer": "Winston Chang <winston@posit.co>",
         "Repository": "CRAN",
         "Date/Publication": "2025-02-15 00:50:02 UTC",
-        "Built": "R 4.5.3; ; 2026-03-28 18:48:18 UTC; windows",
-        "RemoteType": "standard",
-        "RemotePkgRef": "R6",
-        "RemoteRef": "R6",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
-        "RemoteSha": "2.6.1"
+        "Built": "R 4.5.2; ; 2026-01-23 01:48:07 UTC; windows"
       }
     },
     "RColorBrewer": {
@@ -197,7 +191,7 @@
         "Maintainer": "Kirill Müller <kirill@cynkra.com>",
         "Repository": "CRAN",
         "Date/Publication": "2026-05-23 05:10:57 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-06-08 02:58:01 UTC; windows",
+        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-06-11 19:30:59 UTC; windows",
         "Archs": "x64",
         "RemoteType": "standard",
         "RemotePkgRef": "RSQLite",
@@ -293,14 +287,8 @@
         "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
         "Repository": "CRAN",
         "Date/Publication": "2024-10-04 07:20:03 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-03-28 19:36:41 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "askpass",
-        "RemoteRef": "askpass",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.2.1"
+        "Built": "R 4.5.2; x86_64-w64-mingw32; 2026-01-23 02:34:30 UTC; windows",
+        "Archs": "x64"
       }
     },
     "base64enc": {
@@ -444,7 +432,7 @@
         "Maintainer": "Carson Sievert <carson@posit.co>",
         "Repository": "CRAN",
         "Date/Publication": "2023-11-04 00:30:05 UTC",
-        "Built": "R 4.5.3; ; 2026-04-19 01:46:19 UTC; windows",
+        "Built": "R 4.5.3; ; 2026-06-10 02:03:59 UTC; windows",
         "RemoteType": "standard",
         "RemotePkgRef": "bsicons",
         "RemoteRef": "bsicons",
@@ -538,14 +526,8 @@
         "Maintainer": "Gábor Csárdi <gabor@posit.co>",
         "Repository": "CRAN",
         "Date/Publication": "2025-04-23 13:50:02 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-03-28 18:48:17 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "cli",
-        "RemoteRef": "cli",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "3.6.5"
+        "Built": "R 4.5.2; x86_64-w64-mingw32; 2026-01-23 01:48:08 UTC; windows",
+        "Archs": "x64"
       }
     },
     "clipr": {
@@ -723,14 +705,8 @@
         "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
         "Repository": "CRAN",
         "Date/Publication": "2025-08-19 22:40:02 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-03-28 18:48:31 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "curl",
-        "RemoteRef": "curl",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "7.0.0"
+        "Built": "R 4.5.2; x86_64-w64-mingw32; 2026-01-23 01:48:14 UTC; windows",
+        "Archs": "x64"
       }
     },
     "data.table": {
@@ -790,14 +766,8 @@
         "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
         "Repository": "CRAN",
         "Date/Publication": "2025-11-19 13:20:08 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-03-28 18:48:22 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "digest",
-        "RemoteRef": "digest",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.6.39"
+        "Built": "R 4.5.2; x86_64-w64-mingw32; 2026-01-23 01:48:07 UTC; windows",
+        "Archs": "x64"
       }
     },
     "dplyr": {
@@ -1270,13 +1240,7 @@
         "Maintainer": "Hadley Wickham <hadley@posit.co>",
         "Repository": "CRAN",
         "Date/Publication": "2026-02-13 16:20:15 UTC",
-        "Built": "R 4.5.3; ; 2026-03-28 20:11:55 UTC; windows",
-        "RemoteType": "standard",
-        "RemotePkgRef": "httr",
-        "RemoteRef": "httr",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
-        "RemoteSha": "1.4.8"
+        "Built": "R 4.5.2; ; 2026-02-15 00:50:54 UTC; windows"
       }
     },
     "isoband": {
@@ -1358,14 +1322,8 @@
         "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>),\n  Duncan Temple Lang [ctb],\n  Lloyd Hilaiel [cph] (author of bundled libyajl)",
         "Repository": "CRAN",
         "Date/Publication": "2025-03-27 06:40:02 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-03-28 18:48:18 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "jsonlite",
-        "RemoteRef": "jsonlite",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "2.0.0"
+        "Built": "R 4.5.2; x86_64-w64-mingw32; 2026-01-23 01:48:08 UTC; windows",
+        "Archs": "x64"
       }
     },
     "knitr": {
@@ -1626,13 +1584,7 @@
         "Repository": "CRAN",
         "Date/Publication": "2025-03-17 20:20:02 UTC",
         "Built": "R 4.5.2; x86_64-w64-mingw32; 2025-11-01 00:30:57 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "mime",
-        "RemoteRef": "mime",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.13"
+        "Archs": "x64"
       }
     },
     "openssl": {
@@ -1642,7 +1594,7 @@
         "Package": "openssl",
         "Type": "Package",
         "Title": "Toolkit for Encryption, Signatures and Certificates Based on\nOpenSSL",
-        "Version": "2.3.5",
+        "Version": "2.3.4",
         "Authors@R": "c(person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"), email = \"jeroenooms@gmail.com\",\n    comment = c(ORCID = \"0000-0002-4035-0289\")),\n    person(\"Oliver\", \"Keyes\", role = \"ctb\"))",
         "Description": "Bindings to OpenSSL libssl and libcrypto, plus custom SSH key parsers.\n    Supports RSA, DSA and EC curves P-256, P-384, P-521, and curve25519. Cryptographic\n    signatures can either be created and verified manually or via x509 certificates. \n    AES can be used in cbc, ctr or gcm mode for symmetric encryption; RSA for asymmetric\n    (public key) encryption or EC for Diffie Hellman. High-level envelope functions \n    combine RSA and AES for encrypting arbitrary sized data. Other utilities include key\n    generators, hash functions (md5, sha1, sha256, etc), base64 encoder, a secure random\n    number generator, and 'bignum' math methods for manually performing crypto \n    calculations on large multibyte integers.",
         "License": "MIT + file LICENSE",
@@ -1655,19 +1607,13 @@
         "RoxygenNote": "7.3.2",
         "Encoding": "UTF-8",
         "NeedsCompilation": "yes",
-        "Packaged": "2026-02-26 12:59:14 UTC; jeroen",
+        "Packaged": "2025-09-30 09:14:32 UTC; jeroen",
         "Author": "Jeroen Ooms [aut, cre] (ORCID: <https://orcid.org/0000-0002-4035-0289>),\n  Oliver Keyes [ctb]",
         "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
         "Repository": "CRAN",
-        "Date/Publication": "2026-02-26 13:50:09 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-03-28 19:56:39 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "openssl",
-        "RemoteRef": "openssl",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "2.3.5"
+        "Date/Publication": "2025-09-30 09:50:02 UTC",
+        "Built": "R 4.5.2; x86_64-w64-mingw32; 2026-01-23 02:47:46 UTC; windows",
+        "Archs": "x64"
       }
     },
     "otel": {
@@ -2229,12 +2175,44 @@
         "Maintainer": "Jakub Nowicki <opensource+kuba@appsilon.com>",
         "Repository": "CRAN",
         "Date/Publication": "2023-01-16 10:40:02 UTC",
-        "Built": "R 4.5.3; ; 2026-03-28 20:38:54 UTC; windows",
+        "Built": "R 4.5.3; ; 2026-06-10 03:33:01 UTC; windows",
         "RemoteType": "standard",
         "RemotePkgRef": "shiny.i18n",
         "RemoteRef": "shiny.i18n",
         "RemoteRepos": "https://cran.rstudio.com",
         "RemoteSha": "0.3.0"
+      }
+    },
+    "shinyjs": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "shinyjs",
+        "Title": "Easily Improve the User Experience of Your Shiny Apps in Seconds",
+        "Version": "2.1.1",
+        "Authors@R": "person(\"Dean\", \"Attali\", \n    email = \"daattali@gmail.com\",\n    role = c(\"aut\", \"cre\"),\n    comment= c(ORCID=\"0000-0002-5645-3493\"))",
+        "Description": "Perform common useful JavaScript operations in Shiny apps that will\n    greatly improve your apps without having to know any JavaScript. Examples\n    include: hiding an element, disabling an input, resetting an input back to\n    its original value, delaying code execution by a few seconds, and many more\n    useful functions for both the end user and the developer. 'shinyjs' can also\n    be used to easily call your own custom JavaScript functions from R.",
+        "URL": "https://deanattali.com/shinyjs/",
+        "BugReports": "https://github.com/daattali/shinyjs/issues",
+        "Depends": "R (>= 3.1.0)",
+        "Imports": "digest (>= 0.6.8), jsonlite, shiny (>= 1.0.0)",
+        "Suggests": "htmltools (>= 0.2.9), knitr (>= 1.7), rmarkdown, shinyAce,\nshinydisconnect, testthat (>= 0.9.1)",
+        "License": "MIT + file LICENSE",
+        "VignetteBuilder": "knitr",
+        "RoxygenNote": "7.3.3",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2026-01-14 23:37:28 UTC; Dean",
+        "Author": "Dean Attali [aut, cre] (ORCID: <https://orcid.org/0000-0002-5645-3493>)",
+        "Maintainer": "Dean Attali <daattali@gmail.com>",
+        "Repository": "CRAN",
+        "Date/Publication": "2026-01-15 06:10:08 UTC",
+        "Built": "R 4.5.3; ; 2026-06-11 19:56:55 UTC; windows",
+        "RemoteType": "standard",
+        "RemotePkgRef": "shinyjs",
+        "RemoteRef": "shinyjs",
+        "RemoteRepos": "https://cran.rstudio.com",
+        "RemoteSha": "2.1.1"
       }
     },
     "sourcetools": {
@@ -2357,14 +2335,8 @@
         "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
         "Repository": "CRAN",
         "Date/Publication": "2024-10-04 09:40:02 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-03-28 18:48:38 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "sys",
-        "RemoteRef": "sys",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "3.4.3"
+        "Built": "R 4.5.2; x86_64-w64-mingw32; 2026-01-23 01:48:06 UTC; windows",
+        "Archs": "x64"
       }
     },
     "tibble": {
@@ -2501,7 +2473,7 @@
         "Package": "tinytex",
         "Type": "Package",
         "Title": "Helper Functions to Install and Maintain TeX Live, and Compile\nLaTeX Documents",
-        "Version": "0.59",
+        "Version": "0.58",
         "Authors@R": "c(\n  person(\"Yihui\", \"Xie\", role = c(\"aut\", \"cre\", \"cph\"), email = \"xie@yihui.name\", comment = c(ORCID = \"0000-0003-0645-5666\")),\n  person(given = \"Posit Software, PBC\", role = c(\"cph\", \"fnd\")),\n  person(\"Christophe\", \"Dervieux\", role = \"ctb\", comment = c(ORCID = \"0000-0003-4474-2498\")),\n  person(\"Devon\", \"Ryan\", role = \"ctb\", email = \"dpryan79@gmail.com\", comment = c(ORCID = \"0000-0002-8549-0971\")),\n  person(\"Ethan\", \"Heinzen\", role = \"ctb\"),\n  person(\"Fernando\", \"Cagua\", role = \"ctb\"),\n  person()\n  )",
         "Description": "Helper functions to install and maintain the 'LaTeX' distribution\n  named 'TinyTeX' (<https://yihui.org/tinytex/>), a lightweight, cross-platform,\n  portable, and easy-to-maintain version of 'TeX Live'. This package also\n  contains helper functions to compile 'LaTeX' documents, and install missing\n  'LaTeX' packages automatically.",
         "Imports": "xfun (>= 0.48)",
@@ -2512,17 +2484,12 @@
         "Encoding": "UTF-8",
         "RoxygenNote": "7.3.3",
         "NeedsCompilation": "no",
-        "Packaged": "2026-03-27 22:21:20 UTC; yihui",
+        "Packaged": "2025-11-18 19:18:53 UTC; yihui",
         "Author": "Yihui Xie [aut, cre, cph] (ORCID:\n    <https://orcid.org/0000-0003-0645-5666>),\n  Posit Software, PBC [cph, fnd],\n  Christophe Dervieux [ctb] (ORCID:\n    <https://orcid.org/0000-0003-4474-2498>),\n  Devon Ryan [ctb] (ORCID: <https://orcid.org/0000-0002-8549-0971>),\n  Ethan Heinzen [ctb],\n  Fernando Cagua [ctb]",
         "Maintainer": "Yihui Xie <xie@yihui.name>",
         "Repository": "CRAN",
-        "Date/Publication": "2026-03-28 06:10:10 UTC",
-        "Built": "R 4.5.3; ; 2026-04-19 01:45:43 UTC; windows",
-        "RemoteType": "standard",
-        "RemotePkgRef": "tinytex",
-        "RemoteRef": "tinytex",
-        "RemoteRepos": "https://cran.rstudio.com",
-        "RemoteSha": "0.59"
+        "Date/Publication": "2025-11-19 06:10:02 UTC",
+        "Built": "R 4.5.2; ; 2026-01-23 02:34:29 UTC; windows"
       }
     },
     "tzdb": {
@@ -2706,13 +2673,7 @@
         "Maintainer": "Lionel Henry <lionel@posit.co>",
         "Repository": "CRAN",
         "Date/Publication": "2024-10-28 13:30:02 UTC",
-        "Built": "R 4.5.3; ; 2026-03-28 18:48:20 UTC; windows",
-        "RemoteType": "standard",
-        "RemotePkgRef": "withr",
-        "RemoteRef": "withr",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
-        "RemoteSha": "3.0.2"
+        "Built": "R 4.5.2; ; 2026-01-23 01:48:09 UTC; windows"
       }
     },
     "xfun": {
@@ -2794,14 +2755,8 @@
         "Maintainer": "Hadley Wickham <hadley@posit.co>",
         "Repository": "CRAN",
         "Date/Publication": "2025-12-10 07:00:01 UTC",
-        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-03-28 18:48:24 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "yaml",
-        "RemoteRef": "yaml",
-        "RemoteRepos": "https://cran.rstudio.com/",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "2.3.12"
+        "Built": "R 4.5.2; x86_64-w64-mingw32; 2026-01-23 01:48:09 UTC; windows",
+        "Archs": "x64"
       }
     }
   },
@@ -2809,11 +2764,11 @@
     ".gitattributes": {
       "checksum": "05bdb783ee6514c8c072e47680af8ff7"
     },
-    ".Renviron.R": {
-      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    ".Renviron": {
+      "checksum": "dcdcf61fcb0136bd95a774e8beca3b9f"
     },
     "app.R": {
-      "checksum": "ffa5b7f5c4724e3cb0891d53dbb6ead8"
+      "checksum": "386393c6a756e2998218f7aa09d598a3"
     },
     "data/matches.csv": {
       "checksum": "38f6e8c3265e0c0fd5cc722260f29641"
@@ -2822,34 +2777,64 @@
       "checksum": "876d2765b8b9c99d2d3d7292fc481f26"
     },
     "Dockerfile": {
-      "checksum": "d8940e1eab43e9992d0923324a2a95ce"
+      "checksum": "917e115c6061361861858aab6b07fe0b"
     },
     "old/db.R": {
       "checksum": "1aa49e27bedb7edf7a7691f887458d61"
     },
+    "R/backup.R": {
+      "checksum": "c42f0988b2d9be3ed74baee357a185af"
+    },
     "R/db_post.R": {
-      "checksum": "669645146e1b16a125ccd5ffe5f04365"
+      "checksum": "99b45863539ed5d610a68d6789337282"
+    },
+    "R/helper_visu.R": {
+      "checksum": "0a3fb39c1e18878a36add4d328c85d96"
     },
     "R/mod_admin.R": {
-      "checksum": "d5a77a0616163528642efa395407b73d"
+      "checksum": "d53394abf886077c867c358ddf1309c4"
     },
     "R/mod_auth.R": {
-      "checksum": "193b6631ded6d635f967f5b7c0fecc4f"
+      "checksum": "78b32229946bf3586d69caed351e2f2b"
     },
     "R/mod_paris.R": {
-      "checksum": "5594cee8d965300caaabd51a96c84942"
+      "checksum": "a90f4a49edba21ab56e81f34e73ba569"
     },
     "R/mod_suivi.R": {
-      "checksum": "c4c9e466a89cf40716b37608a631932f"
+      "checksum": "6874db9d9da5db886d120f4a9fd8727a"
     },
     "R/odds.R": {
-      "checksum": "2c1b1c50c9fd0e0a81e7e502b2b6d0b0"
+      "checksum": "2a4c4b88715e9c5008a208e9eb0bfd59"
     },
     "README.md": {
       "checksum": "7923e7aec326e72a9e2b25e0ecdca04f"
     },
+    "save/dernier_etat/bets.csv": {
+      "checksum": "431962f5af2fe65b2975a5ae064106d3"
+    },
+    "save/dernier_etat/matches.csv": {
+      "checksum": "b22f3991ac6becc2f45b2f09778ba82b"
+    },
+    "save/dernier_etat/meta.csv": {
+      "checksum": "27cd3c6b2c7749df4ecf39b350eb0130"
+    },
+    "save/dernier_etat/teams.csv": {
+      "checksum": "56b3df3fbe79e6e2913acfd0b19636e9"
+    },
+    "save/dernier_etat/transactions.csv": {
+      "checksum": "b7e22772ee25326e3061489d23c4bb77"
+    },
+    "save/dernier_etat/users.csv": {
+      "checksum": "882fff5607c69a4cf8f8a52faa50f91a"
+    },
+    "save/kubb_2026-06-12_1557.rds": {
+      "checksum": "a4fc58ed301fe6ff7a35d0c82ef1e6b3"
+    },
+    "save/save.bat": {
+      "checksum": "3548b4aad56288909c75f673e51e1904"
+    },
     "translations/translation.json": {
-      "checksum": "4c9d370b1fe7301ee40951dda9f9a72c"
+      "checksum": "7aad6f3d644baa0c764a7ee7a416292e"
     },
     "www/custom.css": {
       "checksum": "448e095e14c0ae2ba012e4510b055975"
