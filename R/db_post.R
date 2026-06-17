@@ -17,6 +17,15 @@
 
 DB_TZ <- "Europe/Brussels"
 
+# Le conteneur Railway tourne en UTC : on force l'heure locale belge pour
+# (a) comparer la clôture des matchs aux date_match (stockés en heure belge)
+# et (b) afficher les horodatages. Gère automatiquement CET/CEST (DST).
+maintenant_local <- function() format(Sys.time(), "%Y-%m-%d %H:%M", tz = DB_TZ)
+
+fmt_horodatage <- function(x, fmt = "%Y-%m-%d %H:%M") {
+  format(as.POSIXct(x), fmt, tz = DB_TZ)
+}
+
 # Pseudos disposant des droits d'administration (en plus du flag is_admin en base)
 ADMIN_PSEUDOS <- c("thomas")
 

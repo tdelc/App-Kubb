@@ -271,6 +271,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
           rownames = FALSE, colnames = "", options = list(dom = "t")))
       }
       b$match <- paste(b$home, "vs", b$away)
+      b$placed_at <- fmt_horodatage(b$placed_at) # affichage en heure belge
       b$sel_lbl <- ifelse(
         b$type == "vainqueur",
         ifelse(b$selection == as.character(b$home_id), b$home, b$away),
@@ -373,6 +374,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       u <- dbx_get(con, "
         SELECT pseudo, nom, ROUND(statcoins) AS statcoins, is_admin, created_at
         FROM users ORDER BY statcoins DESC")
+      u$created_at <- fmt_horodatage(u$created_at, "%Y-%m-%d")   # heure belge
       DT::datatable(
         u,
         colnames = c(tr("Pseudo"), tr("Nom"), "StatCoins", "Admin", tr("Inscrit·e le")),
@@ -391,6 +393,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
           data.frame(x = tr("Aucun pari pour le moment.")),
           rownames = FALSE, colnames = "", options = list(dom = "t")))
       }
+      b$placed_at <- fmt_horodatage(b$placed_at)   # affichage en heure belge
       b$match <- paste(b$home, "vs", b$away)
       DT::datatable(
         b[, c("placed_at", "pseudo", "match", "type", "selection",
