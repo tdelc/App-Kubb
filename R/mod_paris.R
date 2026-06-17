@@ -47,7 +47,8 @@ mod_paris_server <- function(id, con, user, db_ver_matchs, touch, i18n_s, lang) 
     observe({
       invalidateLater(60000)            # clôture à l'heure du match
       m <- matchs()                     # suit db_ver (scores saisis, etc.)
-      maintenant <- format(Sys.time(), "%Y-%m-%d %H:%M")
+      # maintenant <- format(Sys.time(), "%Y-%m-%d %H:%M")
+      maintenant <- maintenant_local()  # heure belge, pas l'UTC du serveur
       ids <- m$match_id[m$played == 0 & m$date_match > maintenant]
       if (!identical(ids, ids_ouverts())) ids_ouverts(ids)   # silence sinon
     })
@@ -189,7 +190,8 @@ mod_paris_server <- function(id, con, user, db_ver_matchs, touch, i18n_s, lang) 
 
       m_all <- get_matches(con)
       m <- m_all[m_all$match_id == mid, , drop = FALSE]
-      maintenant <- format(Sys.time(), "%Y-%m-%d %H:%M")
+      # maintenant <- format(Sys.time(), "%Y-%m-%d %H:%M")
+      maintenant <- maintenant_local()  # heure belge, pas l'UTC du serveur
       if (m$played == 1 || m$date_match <= maintenant) {
         showNotification(tr("Les paris sont clôturés pour ce match."),
                          type = "error")
@@ -276,6 +278,7 @@ mod_paris_server <- function(id, con, user, db_ver_matchs, touch, i18n_s, lang) 
       }
 
       b$match <- paste(b$home, "vs", b$away)
+      b$placed_at <- fmt_horodatage(b$placed_at)   # affichage en heure belge
       b$type_lbl <- ifelse(b$type == "vainqueur", tr("Vainqueur"), tr("Écart"))
       b$sel_lbl <- ifelse(
         b$type == "vainqueur",
