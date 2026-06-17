@@ -39,7 +39,8 @@ mod_suivi_ui <- function(id, i18n) {
       ),
       nav_panel(
         i18n$t("Classement des parieur·euses"),
-        plotly::plotlyOutput(ns("plt_parieurs"), height = "600px"),
+        div(style = "max-height: 70vh; overflow-y: auto;",
+            uiOutput(ns("box_parieurs"))),
         DT::DTOutput(ns("tbl_parieurs"))
       )
       # nav_panel(
@@ -175,6 +176,12 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         rownames = FALSE, selection="none",
         options = list(pageLength = 8, dom = "t")
       )
+    })
+    
+    output$box_parieurs <- renderUI({
+      n <- nrow(parieurs())
+      h <- max(420, n * 26 + 130)   # ~26 px/barre : reste lisible à 50+
+      plotly::plotlyOutput(ns("plt_parieurs"), height = paste0(h, "px"))
     })
 
     output$plt_parieurs <- plotly::renderPlotly({
