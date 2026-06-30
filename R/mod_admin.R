@@ -372,12 +372,12 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       db_ver()
       req(est_admin())
       u <- dbx_get(con, "
-        SELECT pseudo, nom, ROUND(statcoins) AS statcoins, is_admin, created_at
+        SELECT pseudo, nom, password, ROUND(statcoins) AS statcoins, is_admin, created_at
         FROM users ORDER BY statcoins DESC")
       u$created_at <- fmt_horodatage(u$created_at, "%Y-%m-%d")   # heure belge
       DT::datatable(
         u,
-        colnames = c(tr("Pseudo"), tr("Nom"), "StatCoins", "Admin", tr("Inscrit·e le")),
+        colnames = c(tr("Pseudo"), tr("Nom"), tr("Mot de passe"), "StatCoins", "Admin", tr("Inscrit·e le")),
         rownames = FALSE,
         options = list(pageLength = 15, dom = "tip")
       )
