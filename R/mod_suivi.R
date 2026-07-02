@@ -337,7 +337,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         p,
         colnames = c(tr("Pseudo"), "StatCoins", tr("Paris placés"),
                      tr("Paris gagnés"), tr("Paris en cours"),
-                     tr("Somme pariées"), tr("Somme en jeu"), tr("Gains totaux")),
+                     tr("Somme pariée"), tr("Somme en jeu"), tr("Gains totaux")),
         rownames = FALSE, selection="none",
         options = list(pageLength = 10, dom = "tip")
       )
