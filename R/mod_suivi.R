@@ -41,8 +41,8 @@ mod_suivi_ui <- function(id, i18n) {
         i18n$t("Classement des parieur·euses"),
         div(style = "max-height: 70vh; overflow-y: auto;",
             uiOutput(ns("box_parieurs"))),
-        DT::DTOutput(ns("tbl_parieurs")),
-        plotly::plotlyOutput(ns("plt_parieurs2"), height = "350px")
+        plotly::plotlyOutput(ns("plt_parieurs2"), height = "350px"),
+        DT::DTOutput(ns("tbl_parieurs"))
       )
       # nav_panel(
       #   i18n$t("Évolution des StatCoins"),
@@ -274,7 +274,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
             TRUE      ~ pseudo
           )
         ) |>
-        dplyr::arrange(statcoins) %>% 
+        dplyr::arrange(delta) %>% 
         filter(row_number() <= 10)
       
       # Graduations exprimées en solde réel, pas en écart
