@@ -268,6 +268,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
       p <- p |>
         dplyr::mutate(
           statcoins   = statcoins + en_jeu,
+          delta   = statcoins - CREDIT_INITIAL,
           couleur = dplyr::if_else(delta >= 0, "#2A9D8F", "#C44536"),
           rang    = dplyr::row_number(dplyr::desc(statcoins)),
           label   = dplyr::case_when(
@@ -277,8 +278,8 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
             TRUE      ~ pseudo
           )
         ) |>
-        dplyr::arrange(statcoins) %>% 
-        filter(row_number() <= 10)
+        dplyr::slice_max(statcoins, n = 10) |>
+        dplyr::arrange(statcoins)
       
       # Graduations exprimées en solde réel, pas en écart
       amp   <- max(abs(p$delta), 50)
