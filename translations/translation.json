@@ -26,6 +26,11 @@
       "nl": "Inzet"
     },
     {
+      "fr": "Somme pariée",
+      "en": "Amount bet",
+      "nl": "Ingezette som"
+    },
+    {
       "fr": "Classement théorique (inclusion des sommes en jeu)",
       "en": "Theoretical ranking (including the sums involved)",
       "nl": "Theoretische rangschikking (inclusief de betrokken bedragen)"

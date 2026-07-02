@@ -38,11 +38,14 @@ mod_suivi_ui <- function(id, i18n) {
         DT::DTOutput(ns("tbl_equipes"))
       ),
       nav_panel(
-        i18n$t("Classement des parieur·euses"),
+        i18n$t("Statcoins des parieur·euses"),
         div(style = "max-height: 70vh; overflow-y: auto;",
             uiOutput(ns("box_parieurs"))),
-        plotly::plotlyOutput(ns("plt_parieurs2"), height = "350px"),
         DT::DTOutput(ns("tbl_parieurs"))
+      )
+      nav_panel(
+        i18n$t("Gains des parieur·euses"),
+        plotly::plotlyOutput(ns("plt_parieurs2"), height = "350px")
       )
       # nav_panel(
       #   i18n$t("Évolution des StatCoins"),
@@ -334,7 +337,7 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         p,
         colnames = c(tr("Pseudo"), "StatCoins", tr("Paris placés"),
                      tr("Paris gagnés"), tr("Paris en cours"),
-                     tr("Somme en jeu"), tr("Gains totaux")),
+                     tr("Somme pariées"), tr("Somme en jeu"), tr("Gains totaux")),
         rownames = FALSE, selection="none",
         options = list(pageLength = 10, dom = "tip")
       )
