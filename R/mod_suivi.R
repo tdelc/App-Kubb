@@ -42,7 +42,7 @@ mod_suivi_ui <- function(id, i18n) {
         div(style = "max-height: 70vh; overflow-y: auto;",
             uiOutput(ns("box_parieurs"))),
         DT::DTOutput(ns("tbl_parieurs"))
-      )
+      ),
       nav_panel(
         i18n$t("Gains des parieur·euses"),
         plotly::plotlyOutput(ns("plt_parieurs2"), height = "350px")
