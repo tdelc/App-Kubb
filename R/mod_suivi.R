@@ -104,7 +104,8 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
                u.statcoins,
                COUNT(b.bet_id)                            AS n_paris,
                COALESCE(SUM(CASE WHEN b.settled = 1 AND b.gain > 0 THEN 1 ELSE 0 END), 0) AS n_gagnes,
-               COALESCE(SUM(CASE WHEN b.settled = 0 THEN b.mise ELSE 0 END), 0) AS en_jeu,
+               COALESCE(SUM(CASE WHEN b.settled = 0 THEN 1 ELSE 0 END), 0) AS n_en_jeu,
+               SUM(CASE WHEN b.settled = 0 THEN b.mise ELSE 0 END) AS en_jeu,
                COALESCE(SUM(CASE WHEN b.settled = 1 THEN b.gain ELSE 0 END), 0)
                                                           AS gains_totaux
         FROM users u
@@ -260,7 +261,8 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
       DT::datatable(
         p,
         colnames = c(tr("Pseudo"), "StatCoins", tr("Paris placés"),
-                     tr("Paris gagnés"), tr("Paris en cours"), tr("Gains totaux")),
+                     tr("Paris gagnés"), tr("Paris en cours"),
+                     tr("Somme en jeu"), tr("Gains totaux")),
         rownames = FALSE, selection="none",
         options = list(pageLength = 10, dom = "tip")
       )
