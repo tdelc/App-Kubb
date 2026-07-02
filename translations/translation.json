@@ -25,7 +25,11 @@
       "en": "Amount at stake",
       "nl": "Inzet"
     },
-    
+    {
+      "fr": "Classement théorique (inclusion des sommes en jeu)",
+      "en": "Theoretical ranking (including the sums involved)",
+      "nl": "Theoretische rangschikking (inclusief de betrokken bedragen)"
+    },
     {
       "fr": "Ajuster les StatCoins",
       "en": "Adjust StatCoins",
