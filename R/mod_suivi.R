@@ -53,6 +53,7 @@ mod_suivi_ui <- function(id, i18n) {
 
 mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
   moduleServer(id, function(input, output, session) {
+    ns <- session$ns
     tr <- function(x) i18n_s$t(x)
 
     matchs <- reactive({
