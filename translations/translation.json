@@ -811,6 +811,11 @@
       "nl": "Schattingen uit een toernooisimulatie (resultaten tot nu toe + Elo). Zeegroen: kans op de halve finale; cyaan: kans op de titel."
     },
     {
+      "fr": "Estimations des chances d'atteindre les demi-finales et de remporter la victoire.",
+      "en": "Estimates of the chances of reaching the semi-finals and winning the competition.",
+      "nl": "Schattingen van de kansen om de halve finales te bereiken en de competitie te winnen."
+    },
+    {
       "fr": "Demi-finale",
       "en": "Semi-final",
       "nl": "Halve finale"

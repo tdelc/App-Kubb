@@ -39,8 +39,10 @@ mod_suivi_ui <- function(id, i18n) {
       ),
       nav_panel(
         i18n$t("Pronostic"),
+        # p(class = "text-muted small mt-2 mb-1",
+          # i18n$t("Estimations issues d'une simulation du tournoi (résultats acquis + Elo). Vert d'eau : chances d'atteindre les demi-finales ; cyan : chances de remporter le titre.")),
         p(class = "text-muted small mt-2 mb-1",
-          i18n$t("Estimations issues d'une simulation du tournoi (résultats acquis + Elo). Vert d'eau : chances d'atteindre les demi-finales ; cyan : chances de remporter le titre.")),
+          i18n$t("Estimations des chances d'atteindre les demi-finales et de remporter la victoire.")),
         plotly::plotlyOutput(ns("plt_prono"), height = "420px"),
         DT::DTOutput(ns("tbl_prono"))
       ),
