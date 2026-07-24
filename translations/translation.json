@@ -779,6 +779,41 @@
       "fr": "Titre",
       "en": "Title",
       "nl": "Titel"
+    },
+    {
+      "fr": "Annuler des paris champion en cours",
+      "en": "Cancel active champion bets",
+      "nl": "Actieve kampioenweddenschappen annuleren"
+    },
+    {
+      "fr": "Paris sur le vainqueur du tournoi. Même principe : la mise est remboursée et le pari supprimé. Seuls les paris non encore réglés sont listés.",
+      "en": "Bets on the tournament winner. Same principle: the stake is refunded and the bet deleted. Only unsettled bets are listed.",
+      "nl": "Weddenschappen op de toernooiwinnaar. Zelfde principe: de inzet wordt terugbetaald en de weddenschap verwijderd. Alleen niet-afgehandelde weddenschappen worden getoond."
+    },
+    {
+      "fr": "Annuler les paris champion sélectionnés",
+      "en": "Cancel selected champion bets",
+      "nl": "Geselecteerde kampioenweddenschappen annuleren"
+    },
+    {
+      "fr": "Aucun pari champion en cours à annuler.",
+      "en": "No active champion bets to cancel.",
+      "nl": "Geen actieve kampioenweddenschappen om te annuleren."
+    },
+    {
+      "fr": "Pronostic",
+      "en": "Forecast",
+      "nl": "Voorspelling"
+    },
+    {
+      "fr": "Estimations issues d'une simulation du tournoi (résultats acquis + Elo). Vert d'eau : chances d'atteindre les demi-finales ; cyan : chances de remporter le titre.",
+      "en": "Estimates from a tournament simulation (results so far + Elo). Teal: chances of reaching the semi-finals; cyan: chances of winning the title.",
+      "nl": "Schattingen uit een toernooisimulatie (resultaten tot nu toe + Elo). Zeegroen: kans op de halve finale; cyaan: kans op de titel."
+    },
+    {
+      "fr": "Demi-finale",
+      "en": "Semi-final",
+      "nl": "Halve finale"
     }
   ]
 }

@@ -112,7 +112,19 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                                      tr("Annuler les paris sélectionnés"),
                                      class = "btn-danger mt-2"),
                         DT::DTOutput(ns("tbl_annul"))
-                        
+
+                      )
+                    ),
+                    card(
+                      card_header(tagList(bsicons::bs_icon("trophy"),
+                                          tr("Annuler des paris champion en cours"))),
+                      card_body(
+                        p(class = "text-muted small",
+                          tr("Paris sur le vainqueur du tournoi. Même principe : la mise est remboursée et le pari supprimé. Seuls les paris non encore réglés sont listés.")),
+                        actionButton(ns("btn_annul_champ"),
+                                     tr("Annuler les paris champion sélectionnés"),
+                                     class = "btn-danger mt-2"),
+                        DT::DTOutput(ns("tbl_annul_champ"))
                       )
                     )
           ),
@@ -401,7 +413,77 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
       }
       showNotification(msg, type = "message", duration = 8)
     })
-    
+
+    # ---------------- Annulation de paris champion ----------------
+    paris_champ_annulables <- reactive({
+      lang()
+      db_ver()
+      req(est_admin())
+      b <- get_champion_bets(con)
+      b[b$settled == 0, , drop = FALSE]
+    })
+
+    output$tbl_annul_champ <- DT::renderDT({
+      b <- paris_champ_annulables()
+      if (nrow(b) == 0) {
+        return(DT::datatable(
+          data.frame(x = tr("Aucun pari champion en cours à annuler.")),
+          rownames = FALSE, colnames = "", options = list(dom = "t")))
+      }
+      b$placed_at <- fmt_horodatage(b$placed_at) # affichage en heure belge
+      DT::datatable(
+        b[, c("placed_at", "pseudo", "equipe", "score", "mise", "cote")],
+        colnames = c(tr("Date"), tr("Pseudo"), tr("Champion"), tr("Score"),
+                     tr("Mise"), tr("Cote")),
+        rownames = FALSE,
+        selection = "multiple",
+        options = list(pageLength = 15, dom = "tip")
+      )
+    })
+
+    annul_champ_pending <- reactiveVal(NULL)
+
+    observeEvent(input$btn_annul_champ, {
+      req(est_admin())
+      sel <- input$tbl_annul_champ_rows_selected
+      if (length(sel) == 0) {
+        showNotification(tr("Sélectionnez au moins un pari à annuler."),
+                         type = "warning")
+        return()
+      }
+      b <- paris_champ_annulables()
+      annul_champ_pending(b$bet_id[sel])          # figé ici
+      showModal(modalDialog(
+        title = tr("Confirmer l'annulation"),
+        sprintf("%d %s — %d SC %s.",
+                length(sel), tr("pari·s seront annulé·s et remboursé·s :"),
+                round(sum(b$mise[sel])), tr("au total")),
+        footer = tagList(
+          modalButton(tr("Retour")),
+          actionButton(ns("btn_annul_champ_ok"), tr("Confirmer l'annulation"),
+                       class = "btn-danger")
+        )
+      ))
+    })
+
+    observeEvent(input$btn_annul_champ_ok, {
+      req(est_admin())
+      removeModal()
+      ids <- annul_champ_pending()
+      annul_champ_pending(NULL)
+      req(length(ids) > 0)
+      res <- annuler_paris_champion(con, ids)
+      msg <- sprintf("%s %d %s, %d SC %s.",
+                     tr("Annulation :"), res$n_annules,
+                     tr("pari·s annulé·s"), round(res$total_rendu),
+                     tr("remboursés"))
+      if (res$n_ignores > 0) {
+        msg <- paste0(msg, sprintf(" %d %s.", res$n_ignores,
+                                   tr("déjà réglé·s, ignoré·s")))
+      }
+      showNotification(msg, type = "message", duration = 8)
+    })
+
     # ---------------- Stats (visuels à partager) ----------------
     stats_data <- reactive({
       db_ver()

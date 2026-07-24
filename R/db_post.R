@@ -469,7 +469,53 @@ annuler_paris <- function(con, bet_ids) {
   
   # Une seule bascule de version : réveille les sessions (solde + tables)
   if (n_ok > 0) db_touch(con)
-  
+
+  list(n_annules = n_ok,
+       total_rendu = total_rendu,
+       n_ignores = length(bet_ids) - n_ok)
+}
+
+# ------------------------------------------------------------------
+# Annulation de paris sur le champion (admin) : même principe que
+# annuler_paris(), mais sur la table champion_bets. Restreint aux paris
+# non réglés (settled = 0) : une fois le champion désigné, plus rien à
+# annuler. Atomique par pari, remboursement tracé au grand livre.
+# ------------------------------------------------------------------
+
+annuler_paris_champion <- function(con, bet_ids) {
+  bet_ids <- unique(as.integer(bet_ids))
+  bet_ids <- bet_ids[!is.na(bet_ids)]
+
+  n_ok <- 0L
+  total_rendu <- 0
+
+  for (bid in bet_ids) {
+    res <- dbx_get(con, "
+      WITH d AS (
+        DELETE FROM champion_bets
+        WHERE bet_id = ? AND settled = 0
+        RETURNING bet_id, user_id, mise
+      ), u AS (
+        UPDATE users SET statcoins = statcoins + (SELECT mise FROM d)
+        WHERE user_id = (SELECT user_id FROM d)
+        RETURNING user_id
+      ), t AS (
+        INSERT INTO transactions (user_id, montant, motif)
+        SELECT user_id, mise,
+               '[Admin] Annulation du pari champion #' || bet_id::text
+        FROM d
+      )
+      SELECT mise FROM d",
+                   params = list(bid))
+
+    if (nrow(res) == 1) {
+      n_ok <- n_ok + 1L
+      total_rendu <- total_rendu + res$mise[1]
+    }
+  }
+
+  if (n_ok > 0) db_touch(con)
+
   list(n_annules = n_ok,
        total_rendu = total_rendu,
        n_ignores = length(bet_ids) - n_ok)
