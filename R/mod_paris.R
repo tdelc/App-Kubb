@@ -331,17 +331,17 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
 
       tagList(
         div(class = "mb-3",
-            h4(tagList(bsicons::bs_icon("trophy"), tr("Pariez sur le grand gagnant du tournoi !"))),
-            p(class = "text-muted mb-1", tr("Le tournoi se termine par deux demi-finales et une finale.")),
+            h4(tagList(bsicons::bs_icon("trophy"), tr("Pariez sur l'équipe gagnante du tournoi !"))),
+            # p(class = "text-muted mb-1", tr("Le tournoi se termine par deux demi-finales et une finale.")),
             p(class = "text-muted mb-1", tr("Les équipes finalistes ne sont pas encore connues : à vous de deviner le champion et le score de la finale.")),
-            p(class = "text-muted small mb-0",
-              tr("Les cotes s'ajustent au classement : une équipe distancée voit sa cote se resserrer, et les équipes éliminées disparaissent de la liste.")),
+            # p(class = "text-muted small mb-0",
+            #   tr("Les cotes s'ajustent au classement : une équipe distancée voit sa cote se resserrer, et les équipes éliminées disparaissent de la liste.")),
             if (n_out > 0)
               p(class = "text-danger small mb-0",
                 sprintf("%d %s", n_out, tr("équipe(s) désormais éliminée(s) et retirée(s) du choix.")))
         ),
         card(
-          class = "carte-match",
+          class = "carte-match", min_height = 600,
           card_header(tagList(bsicons::bs_icon("trophy"), tr("Vainqueur du tournoi"))),
           card_body(
             solde_txt,
@@ -357,7 +357,7 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
                          class = "btn-primary w-100")
           )
         ),
-        card(
+        card(min_height = 400,
           card_header(tagList(bsicons::bs_icon("ticket-perforated"),
                               tr("Mes paris champion"))),
           card_body(DT::DTOutput(ns("tbl_mes_champ")))
