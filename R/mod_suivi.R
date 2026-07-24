@@ -38,9 +38,14 @@ mod_suivi_ui <- function(id, i18n) {
         DT::DTOutput(ns("tbl_equipes"))
       ),
       nav_panel(
-        i18n$t("Classement des parieur·euses"),
-        plotly::plotlyOutput(ns("plt_parieurs"), height = "600px"),
+        i18n$t("Statcoins des parieur·euses"),
+        div(style = "max-height: 70vh; overflow-y: auto;",
+            uiOutput(ns("box_parieurs"))),
         DT::DTOutput(ns("tbl_parieurs"))
+      ),
+      nav_panel(
+        i18n$t("Gains des parieur·euses"),
+        plotly::plotlyOutput(ns("plt_parieurs2"), height = "350px")
       )
       # nav_panel(
       #   i18n$t("Évolution des StatCoins"),
@@ -52,6 +57,7 @@ mod_suivi_ui <- function(id, i18n) {
 
 mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
   moduleServer(id, function(input, output, session) {
+    ns <- session$ns
     tr <- function(x) i18n_s$t(x)
 
     matchs <- reactive({
@@ -102,7 +108,9 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
                u.statcoins,
                COUNT(b.bet_id)                            AS n_paris,
                COALESCE(SUM(CASE WHEN b.settled = 1 AND b.gain > 0 THEN 1 ELSE 0 END), 0) AS n_gagnes,
-               COALESCE(SUM(CASE WHEN b.settled = 0 THEN b.mise ELSE 0 END), 0) AS en_jeu,
+               COALESCE(SUM(CASE WHEN b.settled = 0 THEN 1 ELSE 0 END), 0) AS n_en_jeu,
+               COALESCE(SUM(b.mise), 0) AS sum_paris,
+               SUM(CASE WHEN b.settled = 0 THEN b.mise ELSE 0 END) AS en_jeu,
                COALESCE(SUM(CASE WHEN b.settled = 1 THEN b.gain ELSE 0 END), 0)
                                                           AS gains_totaux
         FROM users u
@@ -176,6 +184,12 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         options = list(pageLength = 8, dom = "t")
       )
     })
+    
+    output$box_parieurs <- renderUI({
+      n <- nrow(parieurs())
+      h <- max(420, n * 26 + 130)   # ~26 px/barre : reste lisible à 50+
+      plotly::plotlyOutput(ns("plt_parieurs"), height = paste0(h, "px"))
+    })
 
     output$plt_parieurs <- plotly::renderPlotly({
       lang()
@@ -244,6 +258,77 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
           plot_bgcolor = "rgba(0,0,0,0)"
         )
     })
+    
+    
+    output$plt_parieurs2 <- plotly::renderPlotly({
+      lang()
+      p <- parieurs()
+      validate(need(nrow(p) > 0, tr("Personne pour l'instant")))
+      
+      p <- p |>
+        dplyr::mutate(
+          statcoins   = statcoins + en_jeu,
+          delta   = statcoins - CREDIT_INITIAL,
+          couleur = dplyr::if_else(delta >= 0, "#2A9D8F", "#C44536"),
+          rang    = dplyr::row_number(dplyr::desc(statcoins)),
+          label   = dplyr::case_when(
+            rang == 1 ~ paste0("\U0001F947 ", pseudo),   # 🥇
+            rang == 2 ~ paste0("\U0001F948 ", pseudo),   # 🥈
+            rang == 3 ~ paste0("\U0001F949 ", pseudo),   # 🥉
+            TRUE      ~ pseudo
+          )
+        ) |>
+        dplyr::slice_max(statcoins, n = 10) |>
+        dplyr::arrange(statcoins)
+      
+      # Graduations exprimées en solde réel, pas en écart
+      amp   <- max(abs(p$delta), 50)
+      ticks <- pretty(c(-amp, amp))
+      
+      plotly::plot_ly(
+        p,
+        x = ~delta,
+        y = ~factor(label, levels = label),
+        type = "bar", orientation = "h",
+        marker = list(color = ~couleur,
+                      line = list(color = "rgba(59,44,32,0.25)", width = 1)),
+        hovertemplate = paste0(
+          "<b>%{y}</b><br>",
+          "%{x:+,d} ", tr("vs crédit initial"), "<br>",
+          "<extra></extra>"
+        ),
+        text = ~paste0(round(statcoins), " SC"),
+        textposition = "outside",
+        textfont = list(color = "#3B2C20", family = "Nunito"),
+        cliponaxis = FALSE
+      ) |>
+        plotly::layout(
+          xaxis = list(
+            title = "StatCoins",
+            tickvals = ticks,
+            ticktext = ticks + CREDIT_INITIAL,   # l'axe affiche 800, 1000, 1200...
+            range = c(min(ticks) * 1.15, max(ticks) * 1.15),
+            zeroline = FALSE
+          ),
+          yaxis = list(title = ""),
+          shapes = list(list(
+            type = "line", x0 = 0, x1 = 0, y0 = -0.5, y1 = nrow(p) - 0.5,
+            line = list(color = "#3B2C20", width = 1.5, dash = "dot")
+          )),
+          annotations = list(list(
+            x = 0, y = 1.06, xref = "x", yref = "paper",
+            text = paste0(tr("Crédit initial"), " (", CREDIT_INITIAL, " SC)"),
+            showarrow = FALSE, font = list(size = 11, color = "#3B2C20")
+          )),
+          bargap = 0.35,
+          margin = list(r = 70),
+          font = list(family = "Nunito"),
+          hoverlabel = list(bgcolor = "#FFFBF2", bordercolor = "#3B2C20",
+                            font = list(family = "Nunito", color = "#3B2C20")),
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)"
+        )
+    })
 
     output$tbl_parieurs <- DT::renderDT({
       lang()
@@ -252,7 +337,8 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
       DT::datatable(
         p,
         colnames = c(tr("Pseudo"), "StatCoins", tr("Paris placés"),
-                     tr("Paris gagnés"), tr("Paris en cours"), tr("Gains totaux")),
+                     tr("Paris gagnés"), tr("Paris en cours"),
+                     tr("Somme pariée"), tr("Somme en jeu"), tr("Gains totaux")),
         rownames = FALSE, selection="none",
         options = list(pageLength = 10, dom = "tip")
       )
