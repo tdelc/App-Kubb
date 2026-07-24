@@ -754,6 +754,31 @@
       "fr": "Trophée",
       "en": "Trophy",
       "nl": "Trofee"
+    },
+    {
+      "fr": "Les cotes s'ajustent au classement : une équipe distancée voit sa cote se resserrer, et les équipes éliminées disparaissent de la liste.",
+      "en": "Odds adjust to the standings: a trailing team sees its odds tighten, and eliminated teams drop off the list.",
+      "nl": "De noteringen passen zich aan de stand aan: een achtergebleven team ziet zijn notering krimpen en uitgeschakelde teams verdwijnen uit de lijst."
+    },
+    {
+      "fr": "équipe(s) désormais éliminée(s) et retirée(s) du choix.",
+      "en": "team(s) now eliminated and removed from the choice.",
+      "nl": "team(s) nu uitgeschakeld en uit de keuze verwijderd."
+    },
+    {
+      "fr": "Cette équipe est éliminée : choisissez une autre équipe.",
+      "en": "This team is eliminated: pick another team.",
+      "nl": "Dit team is uitgeschakeld: kies een ander team."
+    },
+    {
+      "fr": "Qualif",
+      "en": "Qualif",
+      "nl": "Kwalif"
+    },
+    {
+      "fr": "Titre",
+      "en": "Title",
+      "nl": "Titel"
     }
   ]
 }

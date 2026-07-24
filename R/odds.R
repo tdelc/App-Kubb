@@ -181,6 +181,8 @@ settle_match <- function(con, match_id, score_home, score_away) {
 
 COTE_MAX_CHAMP        <- 100   # combiné rare : plafond plus haut que 20
 POIDS_MARCHE_CHAMPION <- 300   # volume (StatCoins) où marché et Elo pèsent autant
+N_SIM_CHAMPION        <- 1500  # tirages Monte-Carlo pour la proba de titre
+SEUIL_EN_LICE         <- 0.005 # proba de qualif mini pour rester sélectionnable
 
 # Tranche d'écart correspondant à un score de finale '6-x' (vainqueur = 6)
 score_tranche <- function(score) {
@@ -188,18 +190,92 @@ score_tranche <- function(score) {
   ecart_tranche(6 - loser)
 }
 
-# Probabilité de titre par équipe, à partir de l'Elo (force relative)
-prob_champion <- function(matches) {
-  ratings  <- compute_elo(matches)
-  strength <- 10^(ratings / 400)
-  setNames(as.numeric(strength / sum(strength)), names(ratings))
+# ------------------------------------------------------------------
+# Simulation Monte-Carlo du tournoi
+# ------------------------------------------------------------------
+# À partir des résultats déjà saisis (classement + Elo courant), on
+# rejoue les journées restantes, on classe les 8 équipes (victoires,
+# puis différence de kubbs), on retient le top 4 en demi-finales
+# (1v4, 2v3) et on simule la finale. Répété N fois, on obtient pour
+# chaque équipe sa probabilité de titre (p_champ) et de qualification
+# en demi-finale (p_top4). Le classement intègre donc naturellement
+# l'avance/le retard au classement et le nombre de matchs restants :
+# une équipe distancée voit sa proba fondre, une équipe éliminée tombe
+# à zéro, et tout se resserre à l'approche des demi-finales.
+# ------------------------------------------------------------------
+simulate_tournoi <- function(matches, n_sim = N_SIM_CHAMPION) {
+  ratings <- compute_elo(matches)
+  teams   <- names(ratings)
+  k       <- length(teams)
+  rat     <- as.numeric(ratings[teams])          # force par position
+  idx     <- setNames(seq_len(k), teams)
+
+  played    <- matches[matches$played == 1, , drop = FALSE]
+  remaining <- matches[matches$played == 0, , drop = FALSE]
+
+  # Classement de départ (matchs déjà joués), indexé par position
+  base_wins <- numeric(k)
+  base_diff <- numeric(k)
+  if (nrow(played) > 0) {
+    for (i in seq_len(nrow(played))) {
+      h <- idx[[as.character(played$home_id[i])]]
+      a <- idx[[as.character(played$away_id[i])]]
+      d <- played$score_home[i] - played$score_away[i]
+      base_diff[h] <- base_diff[h] + d
+      base_diff[a] <- base_diff[a] - d
+      if (d > 0) base_wins[h] <- base_wins[h] + 1 else base_wins[a] <- base_wins[a] + 1
+    }
+  }
+
+  # Matchs restants : indices et proba de victoire à domicile (Elo)
+  nr <- nrow(remaining)
+  rem_h <- if (nr > 0) idx[as.character(remaining$home_id)] else integer(0)
+  rem_a <- if (nr > 0) idx[as.character(remaining$away_id)] else integer(0)
+  rem_p <- if (nr > 0) prob_elo(rat[rem_h], rat[rem_a]) else numeric(0)
+
+  # RNG isolé et reproductible : on n'altère pas l'état global
+  seed_state <- if (exists(".Random.seed", envir = .GlobalEnv))
+    get(".Random.seed", envir = .GlobalEnv) else NULL
+  set.seed(20260724L + nrow(played) + nr)
+  on.exit(if (!is.null(seed_state))
+    assign(".Random.seed", seed_state, envir = .GlobalEnv))
+
+  win_ko <- function(x, y) if (runif(1) < prob_elo(rat[x], rat[y])) x else y
+
+  champ <- numeric(k)
+  top4  <- numeric(k)
+  for (s in seq_len(n_sim)) {
+    wins <- base_wins
+    diff <- base_diff
+    if (nr > 0) {
+      hw  <- runif(nr) < rem_p                    # domicile gagne ?
+      los <- sample.int(6, nr, replace = TRUE) - 1  # score du perdant (0-5)
+      for (i in seq_len(nr)) {
+        h <- rem_h[i]; a <- rem_a[i]; m <- 6 - los[i]
+        if (hw[i]) { wins[h] <- wins[h] + 1; diff[h] <- diff[h] + m; diff[a] <- diff[a] - m }
+        else       { wins[a] <- wins[a] + 1; diff[a] <- diff[a] + m; diff[h] <- diff[h] - m }
+      }
+    }
+    ord   <- order(-wins, -diff, runif(k))        # départage résiduel aléatoire
+    top4[ord[1:4]] <- top4[ord[1:4]] + 1
+    f1 <- win_ko(ord[1], ord[4])                  # demi-finales 1v4 / 2v3
+    f2 <- win_ko(ord[2], ord[3])
+    cg <- win_ko(f1, f2)                          # finale
+    champ[cg] <- champ[cg] + 1
+  }
+
+  list(p_champ = setNames(champ / n_sim, teams),
+       p_top4  = setNames(top4  / n_sim, teams))
 }
 
-# Cotes du marché champion : renvoie p_team (par team_id) et p_score
-cotes_champion <- function(con, matches = NULL) {
+# Cotes du marché champion : renvoie p_team (par team_id), p_score, p_top4.
+# `sim` (résultat de simulate_tournoi) est passé par l'appelant pour être mis
+# en cache (recalcul coûteux, uniquement quand un résultat est saisi).
+cotes_champion <- function(con, matches = NULL, sim = NULL) {
   if (is.null(matches)) matches <- get_matches(con)
-  p_elo    <- prob_champion(matches)
-  teams_id <- names(p_elo)
+  if (is.null(sim))     sim <- simulate_tournoi(matches)
+  p_prior  <- sim$p_champ
+  teams_id <- names(p_prior)
 
   flux <- dbx_get(con, "
     SELECT team_id, SUM(mise) AS total FROM champion_bets GROUP BY team_id")
@@ -209,7 +285,8 @@ cotes_champion <- function(con, matches = NULL) {
   k   <- length(teams_id)
   p_mkt <- (mises + 1) / (vol + k)                  # lissage de Laplace
   w     <- vol / (vol + POIDS_MARCHE_CHAMPION)       # poids du marché
-  p_team <- (1 - w) * p_elo[teams_id] + w * p_mkt[teams_id]
+  p_team <- (1 - w) * p_prior[teams_id] + w * p_mkt[teams_id]
+  p_team <- pmax(p_team, 1e-4)                        # évite la division par 0
   p_team <- p_team / sum(p_team)
 
   # Distribution des scores exacts, dérivée des tranches d'écart
@@ -228,7 +305,16 @@ cotes_champion <- function(con, matches = NULL) {
   }, numeric(1))
   p_score <- setNames(p_score / sum(p_score), SCORES_FINALE)
 
-  list(p_team = p_team, p_score = p_score)
+  list(p_team = p_team, p_score = p_score, p_top4 = sim$p_top4)
+}
+
+# Équipes encore en lice pour le titre (proba de qualif >= seuil). Toujours
+# au moins 4 équipes (les mieux placées) pour ne jamais vider la liste.
+equipes_en_lice <- function(cc) {
+  pt    <- cc$p_top4
+  alive <- names(pt)[pt >= SEUIL_EN_LICE]
+  if (length(alive) < 4) alive <- names(sort(pt, decreasing = TRUE))[1:4]
+  alive
 }
 
 # Cote d'un pari champion précis (équipe + score) à partir de cotes_champion()

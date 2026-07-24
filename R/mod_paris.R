@@ -270,11 +270,18 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
     # Marché "Vainqueur du tournoi" (champion + score exact de la finale)
     # ================================================================
 
-    # Cotes du champion : suivent l'Elo (résultats) ET le flux de mises.
+    # Simulation Monte-Carlo du tournoi : coûteuse, recalculée uniquement
+    # quand un résultat est saisi (db_ver_matchs), mise en cache.
+    sim_champ <- reactive({
+      db_ver_matchs()
+      simulate_tournoi(matchs())
+    }) |> bindCache(db_ver_matchs())
+
+    # Cotes du champion : proba de titre (simulation) mélangée au flux de mises.
     # db_ver() bascule à chaque pari => cotes réévaluées en direct.
     cotes_champ <- reactive({
       db_ver()
-      cotes_champion(con, matchs())
+      cotes_champion(con, matchs(), sim_champ())
     })
 
     resultat_champ <- reactive({
@@ -305,8 +312,14 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
       }
 
       u <- user()
-      choix_equipes <- setNames(teams$team_id, teams$nom)
+      # Liste adaptée : seules les équipes encore en lice pour une demi-finale
+      cc         <- cotes_champ()
+      alive_ids  <- equipes_en_lice(cc)
+      teams_lice <- teams[as.character(teams$team_id) %in% alive_ids, , drop = FALSE]
+      teams_lice <- teams_lice[order(-cc$p_top4[as.character(teams_lice$team_id)]), ]
+      choix_equipes <- setNames(teams_lice$team_id, teams_lice$nom)
       choix_scores  <- setNames(SCORES_FINALE, SCORES_FINALE)
+      n_out <- nrow(teams) - nrow(teams_lice)
 
       solde_txt <- if (is.null(u)) {
         p(class = "text-muted", tr("Connectez-vous pour parier."))
@@ -320,7 +333,12 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
         div(class = "mb-3",
             h4(tagList(bsicons::bs_icon("trophy"), tr("Pariez sur le grand gagnant du tournoi !"))),
             p(class = "text-muted mb-1", tr("Le tournoi se termine par deux demi-finales et une finale.")),
-            p(class = "text-muted", tr("Les équipes finalistes ne sont pas encore connues : à vous de deviner le champion et le score de la finale."))
+            p(class = "text-muted mb-1", tr("Les équipes finalistes ne sont pas encore connues : à vous de deviner le champion et le score de la finale.")),
+            p(class = "text-muted small mb-0",
+              tr("Les cotes s'ajustent au classement : une équipe distancée voit sa cote se resserrer, et les équipes éliminées disparaissent de la liste.")),
+            if (n_out > 0)
+              p(class = "text-danger small mb-0",
+                sprintf("%d %s", n_out, tr("équipe(s) désormais éliminée(s) et retirée(s) du choix.")))
         ),
         card(
           class = "carte-match",
@@ -356,7 +374,15 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
       req(!is.na(cote))
       mise <- suppressWarnings(as.numeric(input$champ_mise))
       gain <- if (!is.na(mise)) round(mise * cote) else NA
+      p_titre <- unname(cc$p_team[as.character(input$champ_team)])
+      p_qualif <- unname(cc$p_top4[as.character(input$champ_team)])
       div(class = "cotes-resume mb-2",
+          if (!is.na(p_qualif))
+            span(class = "badge bg-secondary me-1",
+                 sprintf("%s %d%%", tr("Qualif"), round(100 * p_qualif))),
+          if (!is.na(p_titre))
+            span(class = "badge bg-info me-1",
+                 sprintf("%s %d%%", tr("Titre"), round(100 * p_titre))),
           span(class = "badge bg-primary me-1",
                sprintf("%s %.2f", tr("Cote"), cote)),
           if (!is.na(gain))
@@ -392,6 +418,12 @@ mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s
       score   <- as.character(input$champ_score)
       if (is.na(team_id) || !(score %in% SCORES_FINALE)) {
         showNotification(tr("Sélectionnez une équipe et un score."), type = "warning")
+        return()
+      }
+      # L'équipe doit être encore en lice (le classement a pu évoluer)
+      if (!(as.character(team_id) %in% equipes_en_lice(isolate(cotes_champ())))) {
+        showNotification(tr("Cette équipe est éliminée : choisissez une autre équipe."),
+                         type = "error")
         return()
       }
 
