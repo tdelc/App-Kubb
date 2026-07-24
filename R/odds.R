@@ -170,6 +170,104 @@ settle_match <- function(con, match_id, score_home, score_away) {
   list(n_paris = nrow(paris), n_gagnants = n_gagnants, total_paye = total_paye)
 }
 
+# ------------------------------------------------------------------
+# Marché "champion" : vainqueur du tournoi + score exact de la finale
+# ------------------------------------------------------------------
+# Probabilité qu'une équipe soit championne : dérivée de l'Elo courant
+# (force relative), mélangée à la répartition des mises. Probabilité du
+# score exact : distribution des tranches d'écart, répartie uniformément
+# sur les scores d'une même tranche. La cote combine les deux.
+# ------------------------------------------------------------------
+
+COTE_MAX_CHAMP        <- 100   # combiné rare : plafond plus haut que 20
+POIDS_MARCHE_CHAMPION <- 300   # volume (StatCoins) où marché et Elo pèsent autant
+
+# Tranche d'écart correspondant à un score de finale '6-x' (vainqueur = 6)
+score_tranche <- function(score) {
+  loser <- as.integer(sub("^6-", "", score))
+  ecart_tranche(6 - loser)
+}
+
+# Probabilité de titre par équipe, à partir de l'Elo (force relative)
+prob_champion <- function(matches) {
+  ratings  <- compute_elo(matches)
+  strength <- 10^(ratings / 400)
+  setNames(as.numeric(strength / sum(strength)), names(ratings))
+}
+
+# Cotes du marché champion : renvoie p_team (par team_id) et p_score
+cotes_champion <- function(con, matches = NULL) {
+  if (is.null(matches)) matches <- get_matches(con)
+  p_elo    <- prob_champion(matches)
+  teams_id <- names(p_elo)
+
+  flux <- dbx_get(con, "
+    SELECT team_id, SUM(mise) AS total FROM champion_bets GROUP BY team_id")
+  mises <- setNames(rep(0, length(teams_id)), teams_id)
+  if (nrow(flux) > 0) mises[as.character(flux$team_id)] <- flux$total
+  vol <- sum(mises)
+  k   <- length(teams_id)
+  p_mkt <- (mises + 1) / (vol + k)                  # lissage de Laplace
+  w     <- vol / (vol + POIDS_MARCHE_CHAMPION)       # poids du marché
+  p_team <- (1 - w) * p_elo[teams_id] + w * p_mkt[teams_id]
+  p_team <- p_team / sum(p_team)
+
+  # Distribution des scores exacts, dérivée des tranches d'écart
+  effectifs <- ECART_PRIOR
+  played <- matches[matches$played == 1, , drop = FALSE]
+  if (nrow(played) > 0) {
+    obs <- table(ecart_tranche(abs(played$score_home - played$score_away)))
+    for (tr in names(obs)) effectifs[tr] <- effectifs[tr] + obs[[tr]]
+  }
+  p_tr     <- effectifs / sum(effectifs)
+  tr_score <- vapply(SCORES_FINALE, score_tranche, character(1))
+  n_par_tr <- table(tr_score)
+  p_score  <- vapply(SCORES_FINALE, function(s) {
+    tr <- tr_score[[s]]
+    unname(p_tr[tr] / n_par_tr[[tr]])
+  }, numeric(1))
+  p_score <- setNames(p_score / sum(p_score), SCORES_FINALE)
+
+  list(p_team = p_team, p_score = p_score)
+}
+
+# Cote d'un pari champion précis (équipe + score) à partir de cotes_champion()
+# Indexation simple ([]) : renvoie NA plutôt qu'une erreur si la clé est absente.
+cote_champion <- function(cc, team_id, score) {
+  pt <- unname(cc$p_team[as.character(team_id)])
+  ps <- unname(cc$p_score[as.character(score)])
+  p  <- pt * ps
+  if (length(p) == 0 || is.na(p) || p <= 0) return(NA_real_)
+  round(pmax(COTE_MIN, pmin(COTE_MAX_CHAMP, MARGE / p)), 2)
+}
+
+# Règlement du marché champion : score = score exact de la finale.
+settle_champion <- function(con, team_id, score) {
+  paris <- dbx_get(con, "SELECT * FROM champion_bets WHERE settled = 0")
+  n_gagnants <- 0
+  total_paye <- 0
+  if (nrow(paris) > 0) {
+    for (i in seq_len(nrow(paris))) {
+      b <- paris[i, ]
+      gagne <- (b$team_id == team_id) && (b$score == score)
+      gain  <- if (gagne) round(b$mise * b$cote) else 0
+      dbx_exec(con, "
+        UPDATE champion_bets SET settled = 1, gain = ? WHERE bet_id = ?",
+        params = list(gain, b$bet_id))
+      if (gain > 0) {
+        add_transaction(con, b$user_id, gain,
+                        sprintf("Gain pari champion #%d", b$bet_id))
+        n_gagnants <- n_gagnants + 1
+        total_paye <- total_paye + gain
+      }
+    }
+  }
+  dbx_exec(con, "
+    UPDATE champion_result SET team_id = ?, score = ?, settled = 1 WHERE id = 1",
+    params = list(team_id, score))
+  list(n_paris = nrow(paris), n_gagnants = n_gagnants, total_paye = total_paye)
+}
+
 cotes_tous <- function(con, matches) {
   ratings <- compute_elo(matches)
   flux <- dbx_get(con, "

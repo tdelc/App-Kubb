@@ -88,6 +88,14 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                   actionButton(ns("btn_date"), tr("Reprogrammer"),
                                class = "btn-secondary")
                 )
+              ),
+
+              card(
+                card_header(tagList(bsicons::bs_icon("trophy"),
+                                    tr("Régler le champion du tournoi"))),
+                card_body(
+                  uiOutput(ns("champ_admin"))
+                )
               )
             )
           ),
@@ -250,6 +258,69 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                                    as.integer(input$date_match_sel)))
       db_touch_matchs(con)
       showNotification(tr("Match reprogrammé."), type = "message")
+    })
+
+    # ---------------- Champion du tournoi ----------------
+    output$champ_admin <- renderUI({
+      lang()
+      db_ver()
+      req(est_admin())
+      res <- get_champion_result(con)
+      teams <- get_teams(con)
+      if (!is.null(res$settled) && res$settled == 1) {
+        nom_champ <- teams$nom[match(res$team_id, teams$team_id)]
+        return(tagList(
+          p(sprintf("\U0001F3C6 %s : %s (%s : %s)",
+                    tr("Champion du tournoi désigné :"),
+                    nom_champ %||% "?", tr("Score de la finale"), res$score %||% "?")),
+          p(class = "text-muted small", tr("Le champion a déjà été désigné."))
+        ))
+      }
+      tagList(
+        selectInput(ns("champ_team"), tr("Équipe championne"),
+                    choices = setNames(teams$team_id, teams$nom)),
+        selectInput(ns("champ_score"), tr("Score de la finale"),
+                    choices = setNames(SCORES_FINALE, SCORES_FINALE), selected = "6-2"),
+        actionButton(ns("btn_champ"), tr("Valider le champion"), class = "btn-danger"),
+        p(class = "text-muted small mt-2",
+          tr("La validation règle définitivement tous les paris sur le champion."))
+      )
+    })
+
+    observeEvent(input$btn_champ, {
+      req(est_admin(), input$champ_team, input$champ_score)
+      if (!champion_ouvert(con)) {
+        showNotification(tr("Le champion a déjà été désigné."), type = "error")
+        return()
+      }
+      teams <- get_teams(con)
+      nom_champ <- teams$nom[match(as.integer(input$champ_team), teams$team_id)]
+      showModal(modalDialog(
+        title = tr("Confirmer le champion"),
+        sprintf("%s %s — %s : %s", tr("Champion du tournoi"),
+                nom_champ, tr("Score de la finale"), input$champ_score),
+        footer = tagList(
+          modalButton(tr("Annuler")),
+          actionButton(ns("btn_champ_ok"), tr("Confirmer"), class = "btn-danger")
+        )
+      ))
+    })
+
+    observeEvent(input$btn_champ_ok, {
+      req(est_admin(), input$champ_team, input$champ_score)
+      removeModal()
+      if (!champion_ouvert(con)) {
+        showNotification(tr("Le champion a déjà été désigné."), type = "error")
+        return()
+      }
+      res <- settle_champion(con, as.integer(input$champ_team),
+                             as.character(input$champ_score))
+      touch()
+      showNotification(
+        sprintf("%s %d %s, %d %s, %d SC %s.",
+                tr("Champion enregistré :"), res$n_paris, tr("paris champion réglés"),
+                res$n_gagnants, tr("gagnants"), res$total_paye, tr("redistribués")),
+        type = "message", duration = 8)
     })
     
     # ---------------- Annulation de paris ----------------

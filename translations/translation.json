@@ -220,12 +220,12 @@
       "en": "Kubbs for",
       "nl": "Kubbs voor"
     },
-	{
+    {
       "fr": "Crédit initial",
       "en": "Initial credit",
       "nl": "Aanvankelijke krediet"
     },
-	{
+    {
       "fr": "vs crédit initial",
       "en": "vs initial credit",
       "nl": "vs aanvankelijke krediet"
@@ -370,7 +370,7 @@
       "en": "Winning bets",
       "nl": "Gewonnen weddenschappen"
     },
-	{
+    {
       "fr": "Paris en cours",
       "en": "Current Bets",
       "nl": "Lopende weddenschappen"
@@ -599,6 +599,161 @@
       "fr": "Évolution des StatCoins",
       "en": "StatCoins over time",
       "nl": "Evolutie van de StatCoins"
+    },
+    {
+      "fr": "Vainqueur du tournoi",
+      "en": "Tournament winner",
+      "nl": "Toernooiwinnaar"
+    },
+    {
+      "fr": "Champion",
+      "en": "Champion",
+      "nl": "Kampioen"
+    },
+    {
+      "fr": "Pariez sur le grand gagnant du tournoi !",
+      "en": "Bet on the overall tournament winner!",
+      "nl": "Wed op de eindwinnaar van het toernooi!"
+    },
+    {
+      "fr": "Le tournoi se termine par deux demi-finales et une finale.",
+      "en": "The tournament ends with two semi-finals and a final.",
+      "nl": "Het toernooi eindigt met twee halve finales en een finale."
+    },
+    {
+      "fr": "Les équipes finalistes ne sont pas encore connues : à vous de deviner le champion et le score de la finale.",
+      "en": "The finalists are not known yet: guess the champion and the final score.",
+      "nl": "De finalisten zijn nog niet bekend: raad de kampioen en de eindscore."
+    },
+    {
+      "fr": "Quelle équipe soulève le trophée ?",
+      "en": "Which team lifts the trophy?",
+      "nl": "Welk team wint de trofee?"
+    },
+    {
+      "fr": "Score exact de la finale",
+      "en": "Exact final score",
+      "nl": "Exacte eindscore"
+    },
+    {
+      "fr": "Votre sélection",
+      "en": "Your selection",
+      "nl": "Jouw keuze"
+    },
+    {
+      "fr": "Gain potentiel",
+      "en": "Potential win",
+      "nl": "Mogelijke winst"
+    },
+    {
+      "fr": "Tout miser (all-in)",
+      "en": "Bet everything (all-in)",
+      "nl": "Alles inzetten (all-in)"
+    },
+    {
+      "fr": "Parier sur le champion",
+      "en": "Bet on the champion",
+      "nl": "Wed op de kampioen"
+    },
+    {
+      "fr": "Le marché du champion est clôturé.",
+      "en": "The champion market is closed.",
+      "nl": "De kampioenenmarkt is gesloten."
+    },
+    {
+      "fr": "Pari champion enregistré :",
+      "en": "Champion bet placed:",
+      "nl": "Kampioenweddenschap geplaatst:"
+    },
+    {
+      "fr": "Mes paris champion",
+      "en": "My champion bets",
+      "nl": "Mijn kampioenweddenschappen"
+    },
+    {
+      "fr": "Aucun pari sur le champion pour le moment.",
+      "en": "No champion bets yet.",
+      "nl": "Nog geen kampioenweddenschappen."
+    },
+    {
+      "fr": "Sélectionnez une équipe et un score.",
+      "en": "Select a team and a score.",
+      "nl": "Kies een team en een score."
+    },
+    {
+      "fr": "La mise doit être un entier positif.",
+      "en": "The stake must be a positive integer.",
+      "nl": "De inzet moet een positief geheel getal zijn."
+    },
+    {
+      "fr": "Misez de 1 StatCoin jusqu'à la totalité de votre solde (all-in).",
+      "en": "Bet from 1 StatCoin up to your whole balance (all-in).",
+      "nl": "Zet in van 1 StatCoin tot je volledige saldo (all-in)."
+    },
+    {
+      "fr": "Régler le champion du tournoi",
+      "en": "Settle the tournament champion",
+      "nl": "Kampioen van het toernooi afhandelen"
+    },
+    {
+      "fr": "Équipe championne",
+      "en": "Champion team",
+      "nl": "Kampioensteam"
+    },
+    {
+      "fr": "Score de la finale",
+      "en": "Final score",
+      "nl": "Eindscore van de finale"
+    },
+    {
+      "fr": "Valider le champion",
+      "en": "Confirm the champion",
+      "nl": "Kampioen bevestigen"
+    },
+    {
+      "fr": "La validation règle définitivement tous les paris sur le champion.",
+      "en": "Confirming settles all champion bets for good.",
+      "nl": "Bevestigen handelt alle kampioenweddenschappen definitief af."
+    },
+    {
+      "fr": "Confirmer le champion",
+      "en": "Confirm the champion",
+      "nl": "Bevestig de kampioen"
+    },
+    {
+      "fr": "Champion du tournoi désigné :",
+      "en": "Tournament champion set:",
+      "nl": "Toernooikampioen bepaald:"
+    },
+    {
+      "fr": "Le champion a déjà été désigné.",
+      "en": "The champion has already been set.",
+      "nl": "De kampioen is al bepaald."
+    },
+    {
+      "fr": "Champion enregistré :",
+      "en": "Champion recorded:",
+      "nl": "Kampioen geregistreerd:"
+    },
+    {
+      "fr": "paris champion réglés",
+      "en": "champion bets settled",
+      "nl": "kampioenweddenschappen afgehandeld"
+    },
+    {
+      "fr": "Le tournoi n'est pas encore terminé.",
+      "en": "The tournament is not over yet.",
+      "nl": "Het toernooi is nog niet afgelopen."
+    },
+    {
+      "fr": "Champion du tournoi",
+      "en": "Tournament champion",
+      "nl": "Toernooikampioen"
+    },
+    {
+      "fr": "Trophée",
+      "en": "Trophy",
+      "nl": "Trofee"
     }
   ]
 }
