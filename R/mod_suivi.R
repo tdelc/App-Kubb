@@ -43,7 +43,14 @@ mod_suivi_ui <- function(id, i18n) {
           # i18n$t("Estimations issues d'une simulation du tournoi (résultats acquis + Elo). Vert d'eau : chances d'atteindre les demi-finales ; cyan : chances de remporter le titre.")),
         p(class = "text-muted small mt-2 mb-1",
           i18n$t("Estimations des chances d'atteindre les demi-finales et de remporter la victoire.")),
-        plotly::plotlyOutput(ns("plt_prono"), height = "420px"),
+        layout_column_wrap(
+          width = 1 / 2,
+          fill = FALSE,
+          div(style = "max-height: 70vh; overflow-y: auto;",
+              plotly::plotlyOutput(ns("plt_prono1"), height = "420px")),
+          div(style = "max-height: 70vh; overflow-y: auto;",
+              plotly::plotlyOutput(ns("plt_prono2"), height = "420px"))
+        ),
         DT::DTOutput(ns("tbl_prono"))
       ),
       nav_panel(
@@ -214,7 +221,7 @@ mod_suivi_server <- function(id, con, db_ver, db_ver_matchs, i18n_s, lang) {
     })
 
     # ---------------- Pronostic (demi-finale / titre) ----------------
-    output$plt_prono <- plotly::renderPlotly({
+    output$plt_prono1 <- plotly::renderPlotly({
       lang()
       d <- prono()
       d$equipe <- factor(d$equipe, levels = rev(d$equipe))  # meilleur en haut
@@ -224,6 +231,35 @@ mod_suivi_server <- function(id, con, db_ver, db_ver_matchs, i18n_s, lang) {
           marker = list(color = COUL_QUALIF),
           hovertemplate = paste0("%{y}<br>", tr("Demi-finale"),
                                  " : %{x:.0f}%<extra></extra>")) |>
+        # plotly::add_bars(
+        #   x = ~titre, name = tr("Titre"),
+        #   marker = list(color = COUL_TITRE),
+        #   hovertemplate = paste0("%{y}<br>", tr("Titre"),
+        #                          " : %{x:.0f}%<extra></extra>")) |>
+        plotly::layout(
+          barmode = "group",
+          xaxis = list(title = "%", range = c(0, 100), ticksuffix = "%"),
+          yaxis = list(title = ""),
+          legend = list(orientation = "h", y = -0.15),
+          bargap = 0.3,
+          font = list(family = "Nunito"),
+          hoverlabel = list(bgcolor = "#FFFBF2", bordercolor = "#3B2C20",
+                            font = list(family = "Nunito", color = "#3B2C20")),
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)"
+        )
+    })
+    
+    output$plt_prono2 <- plotly::renderPlotly({
+      lang()
+      d <- prono()
+      d$equipe <- factor(d$equipe, levels = rev(d$equipe))  # meilleur en haut
+      plotly::plot_ly(d, y = ~equipe, orientation = "h") |>
+        # plotly::add_bars(
+        #   x = ~qualif, name = tr("Demi-finale"),
+        #   marker = list(color = COUL_QUALIF),
+        #   hovertemplate = paste0("%{y}<br>", tr("Demi-finale"),
+        #                          " : %{x:.0f}%<extra></extra>")) |>
         plotly::add_bars(
           x = ~titre, name = tr("Titre"),
           marker = list(color = COUL_TITRE),
