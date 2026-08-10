@@ -90,6 +90,11 @@ ui <- page_navbar(
                 choices = setNames(i18n$get_languages(),
                                    toupper(i18n$get_languages())),
                 selected = "fr", width = "85px")
+  ),
+  
+  footer = tagList(
+    tags$b("Attention : depuis le 12 Août, il est maintenant possible de parier 
+      pour l'équipe gagnante du tournoi !!")
   )
 )
 
