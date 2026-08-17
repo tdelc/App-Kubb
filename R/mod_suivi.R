@@ -92,13 +92,13 @@ mod_suivi_server <- function(id, con, db_ver, db_ver_matchs, i18n_s, lang) {
     # mise en cache et recalculée seulement quand un résultat change.
     prono <- reactive({
       db_ver_matchs()
-      sim <- simulate_tournoi(get_matches(con))
+      pr <- pronostic_equipes(get_matches(con))
       teams <- get_teams(con)
-      tid <- names(sim$p_top4)
+      tid <- pr$team_id
       dplyr::tibble(
         equipe = teams$nom[match(as.integer(tid), teams$team_id)],
-        qualif = 100 * as.numeric(sim$p_top4[tid]),
-        titre  = 100 * as.numeric(sim$p_champ[tid])
+        qualif = 100 * as.numeric(pr$qualif[tid]),
+        titre  = 100 * as.numeric(pr$titre[tid])
       ) |>
         dplyr::arrange(dplyr::desc(qualif), dplyr::desc(titre))
     }) |> bindCache(db_ver_matchs())

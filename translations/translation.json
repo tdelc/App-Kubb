@@ -824,6 +824,11 @@
       "fr": "Demi-finale",
       "en": "Semi-final",
       "nl": "Halve finale"
+    },
+    {
+      "fr": "Score de la finale (au meilleur des 3)",
+      "en": "Final score (best of 3)",
+      "nl": "Eindscore (best of 3)"
     }
   ]
 }

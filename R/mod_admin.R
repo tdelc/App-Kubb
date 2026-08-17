@@ -292,7 +292,7 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
         selectInput(ns("champ_team"), tr("Équipe championne"),
                     choices = setNames(teams$team_id, teams$nom)),
         selectInput(ns("champ_score"), tr("Score de la finale"),
-                    choices = setNames(SCORES_FINALE, SCORES_FINALE), selected = "6-2"),
+                    choices = setNames(SCORES_FINALE, SCORES_FINALE), selected = "2-1"),
         actionButton(ns("btn_champ"), tr("Valider le champion"), class = "btn-danger"),
         p(class = "text-muted small mt-2",
           tr("La validation règle définitivement tous les paris sur le champion."))
