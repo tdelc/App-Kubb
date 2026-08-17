@@ -23,7 +23,9 @@ mod_auth_server <- function(id, con, user, user_id, db_ver, touch, i18n_s, lang)
               textInput(ns("login_pseudo"), tr("Pseudo")),
               passwordInput(ns("login_pwd"), tr("Mot de passe")),
               actionButton(ns("btn_login"), tr("Se connecter"),
-                           class = "btn-primary")
+                           class = "btn-primary"),
+              tags$b(tr("Attention : il est maintenant possible de parier 
+      pour l'équipe gagnante du tournoi !"))
             )
           ),
           card(

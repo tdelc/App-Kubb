@@ -93,7 +93,7 @@ ui <- page_navbar(
   ),
   
   footer = tagList(
-    tags$b(i18n$t("Attention : depuis le 12 Août, il est maintenant possible de parier 
+    tags$b(i18n$t("/t Attention : il est maintenant possible de parier 
       pour l'équipe gagnante du tournoi !"))
   )
 )
