@@ -12,6 +12,10 @@ mod_paris_ui <- function(id, i18n) {
         uiOutput(ns("cards"))
       ),
       nav_panel(
+        tagList(bsicons::bs_icon("trophy"), i18n$t("Vainqueur du tournoi")),
+        uiOutput(ns("champion"))
+      ),
+      nav_panel(
         i18n$t("Mes paris"),
         DT::DTOutput(ns("tbl_mes_paris"))
       )
@@ -24,7 +28,7 @@ mod_paris_ui <- function(id, i18n) {
   )
 }
 
-mod_paris_server <- function(id, con, user, db_ver_matchs, touch, i18n_s, lang) {
+mod_paris_server <- function(id, con, user, db_ver, db_ver_matchs, touch, i18n_s, lang) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     tr <- function(x) i18n_s$t(x)
@@ -261,6 +265,227 @@ mod_paris_server <- function(id, con, user, db_ver_matchs, touch, i18n_s, lang) 
                 tr("bonne chance !")),
         type = "message")
     }
+
+    # ================================================================
+    # Marché "Vainqueur du tournoi" (champion + score exact de la finale)
+    # ================================================================
+
+    # Simulation Monte-Carlo du tournoi : coûteuse, recalculée uniquement
+    # quand un résultat est saisi (db_ver_matchs), mise en cache.
+    sim_champ <- reactive({
+      db_ver_matchs()
+      simulate_tournoi(matchs())
+    }) |> bindCache(db_ver_matchs())
+
+    # Cotes du champion : proba de titre (simulation) mélangée au flux de mises.
+    # db_ver() bascule à chaque pari => cotes réévaluées en direct.
+    cotes_champ <- reactive({
+      db_ver()
+      cotes_champion(con, matchs(), sim_champ())
+    })
+
+    resultat_champ <- reactive({
+      db_ver()
+      get_champion_result(con)
+    })
+
+    output$champion <- renderUI({
+      lang()
+      res <- resultat_champ()
+      teams <- get_teams(con)
+
+      # Marché clôturé : on affiche le champion désigné
+      if (!is.null(res$settled) && res$settled == 1) {
+        nom_champ <- teams$nom[match(res$team_id, teams$team_id)]
+        return(card(
+          class = "carte-match",
+          card_header(tagList(bsicons::bs_icon("trophy-fill"),
+                              tr("Champion du tournoi"))),
+          card_body(
+            h3(class = "text-center my-3",
+               sprintf("\U0001F3C6 %s", nom_champ %||% "?")),
+            p(class = "text-center lead",
+              sprintf("%s : %s", tr("Score de la finale"), res$score %||% "?")),
+            DT::DTOutput(ns("tbl_mes_champ"))
+          )
+        ))
+      }
+
+      u <- user()
+      # Liste adaptée : seules les équipes encore en lice pour une demi-finale
+      cc         <- cotes_champ()
+      alive_ids  <- equipes_en_lice(cc)
+      teams_lice <- teams[as.character(teams$team_id) %in% alive_ids, , drop = FALSE]
+      teams_lice <- teams_lice[order(-cc$p_top4[as.character(teams_lice$team_id)]), ]
+      choix_equipes <- setNames(teams_lice$team_id, teams_lice$nom)
+      choix_scores  <- setNames(SCORES_FINALE, SCORES_FINALE)
+      n_out <- nrow(teams) - nrow(teams_lice)
+
+      solde_txt <- if (is.null(u)) {
+        p(class = "text-muted", tr("Connectez-vous pour parier."))
+      } else {
+        p(class = "lead",
+          sprintf("%s : %s SC. %s", tr("Votre solde"), round(u$statcoins),
+                  tr("Misez de 1 StatCoin jusqu'à la totalité de votre solde (all-in).")))
+      }
+
+      tagList(
+        div(class = "mb-3",
+            h4(tagList(bsicons::bs_icon("trophy"), tr("Pariez sur l'équipe gagnante du tournoi !"))),
+            # p(class = "text-muted mb-1", tr("Le tournoi se termine par deux demi-finales et une finale.")),
+            p(class = "text-muted mb-1", tr("Les équipes finalistes ne sont pas encore connues : à vous de deviner le champion et le score de la finale.")),
+            # p(class = "text-muted small mb-0",
+            #   tr("Les cotes s'ajustent au classement : une équipe distancée voit sa cote se resserrer, et les équipes éliminées disparaissent de la liste.")),
+            if (n_out > 0)
+              p(class = "text-danger small mb-0",
+                sprintf("%d %s", n_out, tr("équipe(s) désormais éliminée(s) et retirée(s) du choix.")))
+        ),
+        card(
+          class = "carte-match", min_height = 600,
+          card_header(tagList(bsicons::bs_icon("trophy"), tr("Vainqueur du tournoi"))),
+          card_body(
+            solde_txt,
+            selectInput(ns("champ_team"), tr("Quelle équipe soulève le trophée ?"),
+                        choices = choix_equipes),
+            selectInput(ns("champ_score"), tr("Score de la finale (au meilleur des 3)"),
+                        choices = choix_scores, selected = "2-1"),
+            uiOutput(ns("champ_cote")),
+            numericInput(ns("champ_mise"), tr("Mise (StatCoins)"),
+                         value = 10, min = MISE_MIN, step = 1),
+            checkboxInput(ns("champ_allin"), tr("Tout miser (all-in)"), value = FALSE),
+            actionButton(ns("champ_parier"), tr("Parier sur le champion"),
+                         class = "btn-primary w-100")
+          )
+        ),
+        card(min_height = 400,
+          card_header(tagList(bsicons::bs_icon("ticket-perforated"),
+                              tr("Mes paris champion"))),
+          card_body(DT::DTOutput(ns("tbl_mes_champ")))
+        )
+      )
+    })
+
+    # Cote de la sélection courante + gain potentiel
+    output$champ_cote <- renderUI({
+      lang()
+      req(input$champ_team, input$champ_score)
+      cc   <- cotes_champ()
+      cote <- cote_champion(cc, input$champ_team, input$champ_score)
+      req(!is.na(cote))
+      mise <- suppressWarnings(as.numeric(input$champ_mise))
+      gain <- if (!is.na(mise)) round(mise * cote) else NA
+      p_titre <- unname(cc$p_team[as.character(input$champ_team)])
+      p_qualif <- unname(cc$p_top4[as.character(input$champ_team)])
+      div(class = "cotes-resume mb-2",
+          if (!is.na(p_qualif))
+            span(class = "badge bg-secondary me-1",
+                 sprintf("%s %d%%", tr("Qualif"), round(100 * p_qualif))),
+          if (!is.na(p_titre))
+            span(class = "badge bg-info me-1",
+                 sprintf("%s %d%%", tr("Titre"), round(100 * p_titre))),
+          span(class = "badge bg-primary me-1",
+               sprintf("%s %.2f", tr("Cote"), cote)),
+          if (!is.na(gain))
+            span(class = "badge bg-success",
+                 sprintf("%s : %d SC", tr("Gain potentiel"), gain))
+      )
+    })
+
+    # All-in : verrouille la mise sur la totalité du solde
+    observeEvent(input$champ_allin, {
+      u <- user()
+      if (isTRUE(input$champ_allin)) {
+        solde <- if (is.null(u)) MISE_MIN else floor(u$statcoins)
+        updateNumericInput(session, "champ_mise", value = max(MISE_MIN, solde))
+        shinyjs::disable("champ_mise")
+      } else {
+        shinyjs::enable("champ_mise")
+      }
+    }, ignoreInit = TRUE)
+
+    observeEvent(input$champ_parier, {
+      u <- user()
+      if (is.null(u)) {
+        showNotification(tr("Connectez-vous pour parier."), type = "warning")
+        return()
+      }
+      if (!champion_ouvert(con)) {
+        showNotification(tr("Le marché du champion est clôturé."), type = "error")
+        return()
+      }
+
+      team_id <- as.integer(input$champ_team)
+      score   <- as.character(input$champ_score)
+      if (is.na(team_id) || !(score %in% SCORES_FINALE)) {
+        showNotification(tr("Sélectionnez une équipe et un score."), type = "warning")
+        return()
+      }
+      # L'équipe doit être encore en lice (le classement a pu évoluer)
+      if (!(as.character(team_id) %in% equipes_en_lice(isolate(cotes_champ())))) {
+        showNotification(tr("Cette équipe est éliminée : choisissez une autre équipe."),
+                         type = "error")
+        return()
+      }
+
+      # All-in : la mise = solde entier, quel qu'il soit (pas de plafond)
+      mise <- if (isTRUE(input$champ_allin)) floor(u$statcoins)
+              else suppressWarnings(as.numeric(input$champ_mise))
+      if (is.na(mise) || mise < MISE_MIN || mise != round(mise)) {
+        showNotification(tr("La mise doit être un entier positif."), type = "warning")
+        return()
+      }
+      if (mise > u$statcoins) {
+        showNotification(tr("Solde insuffisant pour cette mise."), type = "error")
+        return()
+      }
+
+      # Cote figée côté serveur au moment du clic
+      cc   <- isolate(cotes_champ())
+      cote <- cote_champion(cc, team_id, score)
+      if (is.na(cote)) {
+        showNotification(tr("Sélectionnez une équipe et un score."), type = "error")
+        return()
+      }
+
+      shinyjs::disable("champ_parier")
+      res <- place_champion_bet(con, u$user_id, team_id, score, mise, cote)
+      shinyjs::enable("champ_parier")
+
+      if (nrow(res) == 0) {
+        showNotification(tr("Solde insuffisant pour cette mise."), type = "error")
+        return()
+      }
+      showNotification(
+        sprintf("%s %d SC @ %.2f — %s", tr("Pari champion enregistré :"),
+                mise, cote, tr("bonne chance !")),
+        type = "message")
+    })
+
+    output$tbl_mes_champ <- DT::renderDT({
+      lang()
+      db_ver()
+      u <- user()
+      if (is.null(u)) return(NULL)
+      b <- get_champion_bets(con, u$user_id)
+      if (nrow(b) == 0) {
+        return(DT::datatable(
+          data.frame(x = tr("Aucun pari sur le champion pour le moment.")),
+          rownames = FALSE, colnames = "", options = list(dom = "t")))
+      }
+      b$placed_at <- fmt_horodatage(b$placed_at)
+      b$statut <- dplyr::case_when(
+        b$settled == 0 ~ tr("En cours"),
+        b$gain > 0     ~ sprintf("%s +%d SC", tr("Gagné"), round(b$gain)),
+        TRUE           ~ tr("Perdu")
+      )
+      DT::datatable(
+        b[, c("placed_at", "equipe", "score", "mise", "cote", "statut")],
+        colnames = c(tr("Date"), tr("Champion"), tr("Score"),
+                     tr("Mise"), tr("Cote"), tr("Statut")),
+        rownames = FALSE,
+        options = list(pageLength = 10, dom = "tip")
+      )
+    })
 
     # ---------------- Mes paris ----------------
     output$tbl_mes_paris <- DT::renderDT({

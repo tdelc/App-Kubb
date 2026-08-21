@@ -170,6 +170,241 @@ settle_match <- function(con, match_id, score_home, score_away) {
   list(n_paris = nrow(paris), n_gagnants = n_gagnants, total_paye = total_paye)
 }
 
+# ------------------------------------------------------------------
+# Marché "champion" : vainqueur du tournoi + score de la FINALE
+# ------------------------------------------------------------------
+# Les demi-finales et la finale se jouent au meilleur des 3 manches
+# (2 manches gagnantes). On ne parie que sur la FINALE : quelle équipe
+# soulève le trophée, et le score de la série (2-0 ou 2-1).
+#
+# Une simulation Monte-Carlo rejoue les journées restantes, classe les
+# équipes (victoires, puis différence de kubbs), retient le top 4 en
+# demi-finales (1v4, 2v3, best-of-3) puis la finale (best-of-3). Elle
+# fournit, par équipe : proba de qualif en demi (p_top4), proba de titre
+# (p_champ) et répartition du score de finale, conditionnelle au titre
+# (p_score : plus l'équipe domine, plus le 2-0 est probable).
+#
+# Plancher moral : toute équipe encore capable, mathématiquement, de se
+# hisser en demi-finale conserve au moins 5 % de chances de titre.
+# ------------------------------------------------------------------
+
+COTE_MAX_CHAMP        <- 100    # combiné rare : plafond plus haut que 20
+POIDS_MARCHE_CHAMPION <- 300    # volume (StatCoins) où marché et Elo pèsent autant
+N_SIM_CHAMPION        <- 2000   # tirages Monte-Carlo
+PLANCHER_TITRE        <- 0.05   # proba de titre mini si pas éliminée de la demi
+N_QUALIFIES           <- 4      # nombre d'équipes qualifiées en demi-finale
+
+# Équipes mathématiquement éliminées de la demi-finale : même en gagnant
+# tous leurs matchs restants, au moins N_QUALIFIES équipes finissent
+# forcément devant (elles ont déjà plus de victoires acquises que le
+# plafond atteignable). Vecteur logique nommé par team_id.
+equipe_eliminee <- function(matches) {
+  teams <- as.character(unique(c(matches$home_id, matches$away_id)))
+  wins  <- setNames(numeric(length(teams)), teams)
+  rem   <- setNames(numeric(length(teams)), teams)
+
+  played <- matches[matches$played == 1, , drop = FALSE]
+  if (nrow(played) > 0) {
+    for (i in seq_len(nrow(played))) {
+      h <- as.character(played$home_id[i]); a <- as.character(played$away_id[i])
+      if (played$score_home[i] > played$score_away[i]) wins[h] <- wins[h] + 1
+      else                                             wins[a] <- wins[a] + 1
+    }
+  }
+  reste <- matches[matches$played == 0, , drop = FALSE]
+  if (nrow(reste) > 0) {
+    tb <- table(c(as.character(reste$home_id), as.character(reste$away_id)))
+    rem[names(tb)] <- as.numeric(tb)
+  }
+  plafond <- wins + rem
+  setNames(vapply(teams, function(t)
+    sum(wins[setdiff(teams, t)] > plafond[[t]]) >= N_QUALIFIES,
+    logical(1)), teams)
+}
+
+simulate_tournoi <- function(matches, n_sim = N_SIM_CHAMPION) {
+  ratings <- compute_elo(matches)
+  teams   <- names(ratings)
+  k       <- length(teams)
+  rat     <- as.numeric(ratings[teams])          # force par position
+  idx     <- setNames(seq_len(k), teams)
+
+  played    <- matches[matches$played == 1, , drop = FALSE]
+  remaining <- matches[matches$played == 0, , drop = FALSE]
+
+  # Classement de départ (matchs déjà joués), indexé par position
+  base_wins <- numeric(k)
+  base_diff <- numeric(k)
+  if (nrow(played) > 0) {
+    for (i in seq_len(nrow(played))) {
+      h <- idx[[as.character(played$home_id[i])]]
+      a <- idx[[as.character(played$away_id[i])]]
+      d <- played$score_home[i] - played$score_away[i]
+      base_diff[h] <- base_diff[h] + d
+      base_diff[a] <- base_diff[a] - d
+      if (d > 0) base_wins[h] <- base_wins[h] + 1 else base_wins[a] <- base_wins[a] + 1
+    }
+  }
+
+  # Matchs restants : indices et proba de victoire à domicile (Elo)
+  nr <- nrow(remaining)
+  rem_h <- if (nr > 0) idx[as.character(remaining$home_id)] else integer(0)
+  rem_a <- if (nr > 0) idx[as.character(remaining$away_id)] else integer(0)
+  rem_p <- if (nr > 0) prob_elo(rat[rem_h], rat[rem_a]) else numeric(0)
+
+  # RNG isolé et reproductible : on n'altère pas l'état global
+  seed_state <- if (exists(".Random.seed", envir = .GlobalEnv))
+    get(".Random.seed", envir = .GlobalEnv) else NULL
+  set.seed(20260724L + nrow(played) + nr)
+  on.exit(if (!is.null(seed_state))
+    assign(".Random.seed", seed_state, envir = .GlobalEnv))
+
+  # Phase finale au meilleur des 3 manches (2 manches gagnantes)
+  bo3_winner <- function(x, y) {                 # vainqueur d'une série
+    xw <- 0L; yw <- 0L; p <- prob_elo(rat[x], rat[y])
+    while (xw < 2L && yw < 2L) if (runif(1) < p) xw <- xw + 1L else yw <- yw + 1L
+    if (xw == 2L) x else y
+  }
+  bo3_finale <- function(x, y) {                 # vainqueur + score de série
+    xw <- 0L; yw <- 0L; p <- prob_elo(rat[x], rat[y])
+    while (xw < 2L && yw < 2L) if (runif(1) < p) xw <- xw + 1L else yw <- yw + 1L
+    if (xw == 2L) list(w = x, s = if (yw == 0L) "2-0" else "2-1")
+    else          list(w = y, s = if (xw == 0L) "2-0" else "2-1")
+  }
+
+  champ <- numeric(k)
+  top4  <- numeric(k)
+  sc20  <- numeric(k)   # titres remportés 2-0, par équipe
+  sc21  <- numeric(k)   # titres remportés 2-1, par équipe
+  for (s in seq_len(n_sim)) {
+    wins <- base_wins
+    diff <- base_diff
+    if (nr > 0) {
+      hw  <- runif(nr) < rem_p                    # domicile gagne ?
+      los <- sample.int(6, nr, replace = TRUE) - 1  # score du perdant (0-5)
+      for (i in seq_len(nr)) {
+        h <- rem_h[i]; a <- rem_a[i]; m <- 6 - los[i]
+        if (hw[i]) { wins[h] <- wins[h] + 1; diff[h] <- diff[h] + m; diff[a] <- diff[a] - m }
+        else       { wins[a] <- wins[a] + 1; diff[a] <- diff[a] + m; diff[h] <- diff[h] - m }
+      }
+    }
+    ord <- order(-wins, -diff, runif(k))          # départage résiduel aléatoire
+    top4[ord[1:4]] <- top4[ord[1:4]] + 1
+    f1  <- bo3_winner(ord[1], ord[4])             # demi-finale 1v4
+    f2  <- bo3_winner(ord[2], ord[3])             # demi-finale 2v3
+    fin <- bo3_finale(f1, f2)                     # finale
+    champ[fin$w] <- champ[fin$w] + 1
+    if (fin$s == "2-0") sc20[fin$w] <- sc20[fin$w] + 1 else sc21[fin$w] <- sc21[fin$w] + 1
+  }
+
+  # Répartition du score de finale, conditionnelle au titre (fallback marginal)
+  m20 <- sum(sc20); m21 <- sum(sc21); mtot <- m20 + m21
+  marg <- if (mtot > 0) c("2-0" = m20 / mtot, "2-1" = m21 / mtot)
+          else          c("2-0" = 0.5, "2-1" = 0.5)
+  p_score <- setNames(lapply(seq_len(k), function(i) {
+    tot <- sc20[i] + sc21[i]
+    if (tot >= 20) c("2-0" = sc20[i] / tot, "2-1" = sc21[i] / tot) else marg
+  }), teams)
+
+  list(p_champ = setNames(champ / n_sim, teams),
+       p_top4  = setNames(top4  / n_sim, teams),
+       p_score = p_score)
+}
+
+# Ajuste les probas d'affichage : plancher de titre pour les équipes encore
+# en lice, et cohérence P(demi) >= P(titre). `elimine` = logique nommé.
+ajuste_pronostic <- function(p_titre, p_qualif, elimine, plancher = PLANCHER_TITRE) {
+  tid    <- names(p_titre)
+  vivant <- !elimine[tid]
+  titre  <- p_titre
+  titre[vivant]  <- pmax(p_titre[vivant], plancher)
+  qualif <- p_qualif[tid]
+  qualif[vivant] <- pmax(qualif[vivant], titre[vivant])
+  list(titre = setNames(titre, tid), qualif = setNames(qualif, tid))
+}
+
+# Pronostic par équipe (sans marché) : proba de demi et de titre, planchées.
+pronostic_equipes <- function(matches, sim = NULL) {
+  if (is.null(sim)) sim <- simulate_tournoi(matches)
+  el  <- equipe_eliminee(matches)
+  aj  <- ajuste_pronostic(sim$p_champ, sim$p_top4, el)
+  tid <- names(sim$p_champ)
+  list(team_id = tid, qualif = aj$qualif[tid], titre = aj$titre[tid],
+       elimine = el[tid])
+}
+
+# Cotes du marché champion : p_team (titre, marché + plancher), p_top4
+# (qualif), p_score (répartition 2-0/2-1 par équipe) et elimine. `sim` est
+# fourni par l'appelant pour être mis en cache (recalcul coûteux).
+cotes_champion <- function(con, matches = NULL, sim = NULL) {
+  if (is.null(matches)) matches <- get_matches(con)
+  if (is.null(sim))     sim <- simulate_tournoi(matches)
+  teams_id <- names(sim$p_champ)
+  el       <- equipe_eliminee(matches)
+
+  flux <- dbx_get(con, "
+    SELECT team_id, SUM(mise) AS total FROM champion_bets GROUP BY team_id")
+  mises <- setNames(rep(0, length(teams_id)), teams_id)
+  if (nrow(flux) > 0) mises[as.character(flux$team_id)] <- flux$total
+  vol <- sum(mises)
+  k   <- length(teams_id)
+  p_mkt <- (mises + 1) / (vol + k)                  # lissage de Laplace
+  w     <- vol / (vol + POIDS_MARCHE_CHAMPION)       # poids du marché
+  p_team <- (1 - w) * sim$p_champ[teams_id] + w * p_mkt[teams_id]
+
+  # Plancher moral (5 %) + cohérence qualif >= titre
+  aj <- ajuste_pronostic(p_team, sim$p_top4, el)
+
+  list(p_team = aj$titre, p_top4 = aj$qualif, p_score = sim$p_score,
+       elimine = el[teams_id])
+}
+
+# Équipes encore en lice : celles qui ne sont pas mathématiquement éliminées
+# de la demi-finale (sécurité : ne jamais renvoyer une liste vide).
+equipes_en_lice <- function(cc) {
+  el    <- cc$elimine
+  alive <- names(el)[!el]
+  if (length(alive) == 0) alive <- names(el)
+  alive
+}
+
+# Cote d'un pari champion précis (équipe + score de finale). Indexation
+# simple ([]) : renvoie NA plutôt qu'une erreur si une clé est absente.
+cote_champion <- function(cc, team_id, score) {
+  pt <- unname(cc$p_team[as.character(team_id)])
+  ps <- unname(cc$p_score[[as.character(team_id)]][as.character(score)])
+  p  <- pt * ps
+  if (length(p) == 0 || is.na(p) || p <= 0) return(NA_real_)
+  round(pmax(COTE_MIN, pmin(COTE_MAX_CHAMP, MARGE / p)), 2)
+}
+
+# Règlement du marché champion : score = score de la série de finale (2-0/2-1).
+settle_champion <- function(con, team_id, score) {
+  paris <- dbx_get(con, "SELECT * FROM champion_bets WHERE settled = 0")
+  n_gagnants <- 0
+  total_paye <- 0
+  if (nrow(paris) > 0) {
+    for (i in seq_len(nrow(paris))) {
+      b <- paris[i, ]
+      gagne <- (b$team_id == team_id) && (b$score == score)
+      gain  <- if (gagne) round(b$mise * b$cote) else 0
+      dbx_exec(con, "
+        UPDATE champion_bets SET settled = 1, gain = ? WHERE bet_id = ?",
+        params = list(gain, b$bet_id))
+      if (gain > 0) {
+        add_transaction(con, b$user_id, gain,
+                        sprintf("Gain pari champion #%d", b$bet_id))
+        n_gagnants <- n_gagnants + 1
+        total_paye <- total_paye + gain
+      }
+    }
+  }
+  dbx_exec(con, "
+    UPDATE champion_result SET team_id = ?, score = ?, settled = 1 WHERE id = 1",
+    params = list(team_id, score))
+  list(n_paris = nrow(paris), n_gagnants = n_gagnants, total_paye = total_paye)
+}
+
 cotes_tous <- function(con, matches) {
   ratings <- compute_elo(matches)
   flux <- dbx_get(con, "

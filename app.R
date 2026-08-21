@@ -90,6 +90,11 @@ ui <- page_navbar(
                 choices = setNames(i18n$get_languages(),
                                    toupper(i18n$get_languages())),
                 selected = "fr", width = "85px")
+  ),
+  
+  footer = tagList(
+    tags$b(i18n$t("Attention : il est maintenant possible de parier 
+      pour l'équipe gagnante du tournoi !"))
   )
 )
 
@@ -141,8 +146,8 @@ server <- function(input, output, session) {
   })
 
   mod_auth_server("auth", con, user, user_id, db_ver, touch, i18n_s, lang)
-  mod_paris_server("paris", con, user, db_ver_matchs, touch, i18n_s, lang)
-  mod_suivi_server("suivi", con, db_ver, i18n_s, lang)
+  mod_paris_server("paris", con, user, db_ver, db_ver_matchs, touch, i18n_s, lang)
+  mod_suivi_server("suivi", con, db_ver, db_ver_matchs, i18n_s, lang)
   mod_admin_server("admin", con, user, db_ver, touch, i18n_s, lang)
   
   observeEvent(lang(),{

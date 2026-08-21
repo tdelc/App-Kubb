@@ -38,6 +38,25 @@ mod_suivi_ui <- function(id, i18n) {
         DT::DTOutput(ns("tbl_equipes"))
       ),
       nav_panel(
+        i18n$t("Pronostic"),
+        # p(class = "text-muted small mt-2 mb-1",
+          # i18n$t("Estimations issues d'une simulation du tournoi (résultats acquis + Elo). Vert d'eau : chances d'atteindre les demi-finales ; cyan : chances de remporter le titre.")),
+        p(class = "text-muted small mt-2 mb-1",
+          i18n$t("Estimations des chances d'atteindre les demi-finales et de remporter la victoire.")),
+        layout_column_wrap(
+          width = 1 / 2,
+          fill = FALSE,
+          div(style = "max-height: 70vh; overflow-y: auto;",
+              plotly::plotlyOutput(ns("plt_prono1"), height = "420px")),
+          div(style = "max-height: 70vh; overflow-y: auto;",
+              plotly::plotlyOutput(ns("plt_prono2"), height = "420px"))
+        ),
+        layout_column_wrap(
+          width = 1,
+          DT::DTOutput(ns("tbl_prono"))
+        )
+      ),
+      nav_panel(
         i18n$t("Statcoins des parieur·euses"),
         div(style = "max-height: 70vh; overflow-y: auto;",
             uiOutput(ns("box_parieurs"))),
@@ -55,7 +74,7 @@ mod_suivi_ui <- function(id, i18n) {
   )
 }
 
-mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
+mod_suivi_server <- function(id, con, db_ver, db_ver_matchs, i18n_s, lang) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     tr <- function(x) i18n_s$t(x)
@@ -64,6 +83,25 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
       db_ver()
       get_matches(con)
     })
+
+    # Couleurs raccord avec les badges du marché champion (onglet Paris)
+    COUL_QUALIF <- "#2A9D8F"   # = badge bg-secondary (Qualif)
+    COUL_TITRE  <- "#0dcaf0"   # = badge bg-info (Titre)
+
+    # Pronostic : simulation Monte-Carlo du tournoi (proba de demi + de titre),
+    # mise en cache et recalculée seulement quand un résultat change.
+    prono <- reactive({
+      db_ver_matchs()
+      pr <- pronostic_equipes(get_matches(con))
+      teams <- get_teams(con)
+      tid <- pr$team_id
+      dplyr::tibble(
+        equipe = teams$nom[match(as.integer(tid), teams$team_id)],
+        qualif = 100 * as.numeric(pr$qualif[tid]),
+        titre  = 100 * as.numeric(pr$titre[tid])
+      ) |>
+        dplyr::arrange(dplyr::desc(qualif), dplyr::desc(titre))
+    }) |> bindCache(db_ver_matchs())
 
     joues <- reactive({
       dplyr::filter(matchs(), played == 1)
@@ -184,7 +222,83 @@ mod_suivi_server <- function(id, con, db_ver, i18n_s, lang) {
         options = list(pageLength = 8, dom = "t")
       )
     })
+
+    # ---------------- Pronostic (demi-finale / titre) ----------------
+    output$plt_prono1 <- plotly::renderPlotly({
+      lang()
+      d <- prono()
+      d$equipe <- factor(d$equipe, levels = rev(d$equipe))  # meilleur en haut
+      plotly::plot_ly(d, y = ~equipe, orientation = "h") |>
+        plotly::add_bars(
+          x = ~qualif, name = tr("Demi-finale"),
+          marker = list(color = COUL_QUALIF),
+          hovertemplate = paste0("%{y}<br>", tr("Demi-finale"),
+                                 " : %{x:.0f}%<extra></extra>")) |>
+        # plotly::add_bars(
+        #   x = ~titre, name = tr("Titre"),
+        #   marker = list(color = COUL_TITRE),
+        #   hovertemplate = paste0("%{y}<br>", tr("Titre"),
+        #                          " : %{x:.0f}%<extra></extra>")) |>
+        plotly::layout(
+          title = tr("Probabilité d'être en demi-finale"),
+          barmode = "group",
+          xaxis = list(title = "%", range = c(0, 100), ticksuffix = "%"),
+          yaxis = list(title = ""),
+          legend = list(orientation = "h", y = -0.15),
+          bargap = 0.3,
+          font = list(family = "Nunito"),
+          hoverlabel = list(bgcolor = "#FFFBF2", bordercolor = "#3B2C20",
+                            font = list(family = "Nunito", color = "#3B2C20")),
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)"
+        )
+    })
     
+    output$plt_prono2 <- plotly::renderPlotly({
+      lang()
+      d <- prono()
+      d$equipe <- factor(d$equipe, levels = rev(d$equipe))  # meilleur en haut
+      plotly::plot_ly(d, y = ~equipe, orientation = "h") |>
+        # plotly::add_bars(
+        #   x = ~qualif, name = tr("Demi-finale"),
+        #   marker = list(color = COUL_QUALIF),
+        #   hovertemplate = paste0("%{y}<br>", tr("Demi-finale"),
+        #                          " : %{x:.0f}%<extra></extra>")) |>
+        plotly::add_bars(
+          x = ~titre, name = tr("Titre"),
+          marker = list(color = COUL_TITRE),
+          hovertemplate = paste0("%{y}<br>", tr("Titre"),
+                                 " : %{x:.0f}%<extra></extra>")) |>
+        plotly::layout(
+          title = tr("Probabilité de gagner le tournoi"),
+          barmode = "group",
+          xaxis = list(title = "%", range = c(0, 100), ticksuffix = "%"),
+          yaxis = list(title = ""),
+          legend = list(orientation = "h", y = -0.15),
+          bargap = 0.3,
+          font = list(family = "Nunito"),
+          hoverlabel = list(bgcolor = "#FFFBF2", bordercolor = "#3B2C20",
+                            font = list(family = "Nunito", color = "#3B2C20")),
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)"
+        )
+    })
+
+    output$tbl_prono <- DT::renderDT({
+      lang()
+      d <- prono()
+      d$qualif <- round(d$qualif)
+      d$titre  <- round(d$titre)
+      DT::datatable(
+        d,
+        colnames = c(tr("Équipe"),
+                     sprintf("%s (%%)", tr("Demi-finale")),
+                     sprintf("%s (%%)", tr("Titre"))),
+        rownames = FALSE, selection = "none",
+        options = list(pageLength = 8, dom = "t")
+      )
+    })
+
     output$box_parieurs <- renderUI({
       n <- nrow(parieurs())
       h <- max(420, n * 26 + 130)   # ~26 px/barre : reste lisible à 50+
