@@ -194,32 +194,90 @@ N_SIM_CHAMPION        <- 2000   # tirages Monte-Carlo
 PLANCHER_TITRE        <- 0.05   # proba de titre mini si pas éliminée de la demi
 N_QUALIFIES           <- 4      # nombre d'équipes qualifiées en demi-finale
 
-# Équipes mathématiquement éliminées de la demi-finale : même en gagnant
-# tous leurs matchs restants, au moins N_QUALIFIES équipes finissent
-# forcément devant (elles ont déjà plus de victoires acquises que le
-# plafond atteignable). Vecteur logique nommé par team_id.
-equipe_eliminee <- function(matches) {
-  teams <- as.character(unique(c(matches$home_id, matches$away_id)))
-  wins  <- setNames(numeric(length(teams)), teams)
-  rem   <- setNames(numeric(length(teams)), teams)
-
+# Classement officiel de la poule, selon les règles du tournoi :
+#   1) nombre de victoires ; 2) goal average (différence de kubbs) ;
+#   3) confrontation directe (l'équipe qui a battu l'autre passe devant).
+# Renvoie les team_id (caractère), du mieux classé au moins bon.
+classement_officiel <- function(matches) {
+  teams  <- as.character(unique(c(matches$home_id, matches$away_id)))
   played <- matches[matches$played == 1, , drop = FALSE]
+  wins <- setNames(numeric(length(teams)), teams)
+  diff <- setNames(numeric(length(teams)), teams)
   if (nrow(played) > 0) {
     for (i in seq_len(nrow(played))) {
       h <- as.character(played$home_id[i]); a <- as.character(played$away_id[i])
-      if (played$score_home[i] > played$score_away[i]) wins[h] <- wins[h] + 1
-      else                                             wins[a] <- wins[a] + 1
+      d <- played$score_home[i] - played$score_away[i]
+      diff[h] <- diff[h] + d; diff[a] <- diff[a] - d
+      if (d > 0) wins[h] <- wins[h] + 1 else wins[a] <- wins[a] + 1
     }
   }
-  reste <- matches[matches$played == 0, , drop = FALSE]
-  if (nrow(reste) > 0) {
-    tb <- table(c(as.character(reste$home_id), as.character(reste$away_id)))
-    rem[names(tb)] <- as.numeric(tb)
+  # Confrontation directe : +1 si x a battu y, -1 si y a battu x, 0 sinon
+  # (jamais joué, ou une victoire chacun). Ne départage sûrement que 2 équipes.
+  h2h <- function(x, y) {
+    m <- played[(as.character(played$home_id) == x & as.character(played$away_id) == y) |
+                (as.character(played$home_id) == y & as.character(played$away_id) == x), , drop = FALSE]
+    if (nrow(m) == 0) return(0L)
+    vx <- sum((as.character(m$home_id) == x & m$score_home > m$score_away) |
+              (as.character(m$away_id) == x & m$score_away > m$score_home))
+    as.integer(sign(vx - (nrow(m) - vx)))
   }
-  plafond <- wins + rem
-  setNames(vapply(teams, function(t)
-    sum(wins[setdiff(teams, t)] > plafond[[t]]) >= N_QUALIFIES,
-    logical(1)), teams)
+  # Pré-tri par victoires puis goal average ; la confrontation directe ne sert
+  # qu'à départager les ex æquo stricts (mêmes victoires ET même différence).
+  ids <- teams[order(-wins, -diff)]
+  n <- length(ids)
+  if (n > 1) for (i in 2:n) {
+    j <- i
+    while (j > 1 &&
+           wins[ids[j]] == wins[ids[j - 1]] &&
+           diff[ids[j]] == diff[ids[j - 1]] &&
+           h2h(ids[j], ids[j - 1]) > 0) {
+      tmp <- ids[j - 1]; ids[j - 1] <- ids[j]; ids[j] <- tmp
+      j <- j - 1
+    }
+  }
+  ids
+}
+
+# Équipes éliminées de la demi-finale (top N_QUALIFIES). `overrides` : vecteur
+# nommé (team_id -> 0 = forcé en lice, 1 = forcé éliminé), qui prime sur le
+# calcul automatique. Vecteur logique nommé par team_id.
+#   - Poule terminée : classement officiel définitif -> hors top 4 = éliminé.
+#   - Poule en cours : élimination mathématique conservatrice (même en gagnant
+#     tout, au moins N_QUALIFIES équipes ont déjà plus de victoires acquises
+#     que le plafond atteignable). Les cas limites se règlent à la main.
+equipe_eliminee <- function(matches, overrides = NULL) {
+  teams <- as.character(unique(c(matches$home_id, matches$away_id)))
+  reste <- matches[matches$played == 0, , drop = FALSE]
+  auto  <- setNames(logical(length(teams)), teams)
+
+  if (nrow(reste) == 0) {
+    ids       <- classement_officiel(matches)
+    qualifies <- ids[seq_len(min(N_QUALIFIES, length(ids)))]
+    auto[!(teams %in% qualifies)] <- TRUE
+  } else {
+    wins <- setNames(numeric(length(teams)), teams)
+    played <- matches[matches$played == 1, , drop = FALSE]
+    if (nrow(played) > 0) {
+      for (i in seq_len(nrow(played))) {
+        h <- as.character(played$home_id[i]); a <- as.character(played$away_id[i])
+        if (played$score_home[i] > played$score_away[i]) wins[h] <- wins[h] + 1
+        else                                             wins[a] <- wins[a] + 1
+      }
+    }
+    rem <- setNames(numeric(length(teams)), teams)
+    tb  <- table(c(as.character(reste$home_id), as.character(reste$away_id)))
+    rem[names(tb)] <- as.numeric(tb)
+    plafond <- wins + rem
+    for (t in teams)
+      auto[[t]] <- sum(wins[setdiff(teams, t)] > plafond[[t]]) >= N_QUALIFIES
+  }
+
+  # Overrides manuels de l'admin (priment sur l'automatique)
+  if (!is.null(overrides) && length(overrides) > 0) {
+    ov <- overrides[names(overrides) %in% teams]
+    for (t in names(ov)) if (!is.na(ov[[t]])) auto[[t]] <- as.logical(ov[[t]])
+  }
+  auto
 }
 
 simulate_tournoi <- function(matches, n_sim = N_SIM_CHAMPION) {
@@ -251,6 +309,10 @@ simulate_tournoi <- function(matches, n_sim = N_SIM_CHAMPION) {
   rem_h <- if (nr > 0) idx[as.character(remaining$home_id)] else integer(0)
   rem_a <- if (nr > 0) idx[as.character(remaining$away_id)] else integer(0)
   rem_p <- if (nr > 0) prob_elo(rat[rem_h], rat[rem_a]) else numeric(0)
+
+  # Poule terminée : le classement (départages inclus) est figé -> seeding
+  # déterministe des demi-finales, cohérent avec l'élimination affichée.
+  fixed_ord <- if (nr == 0) unname(idx[classement_officiel(matches)]) else NULL
 
   # RNG isolé et reproductible : on n'altère pas l'état global
   seed_state <- if (exists(".Random.seed", envir = .GlobalEnv))
@@ -288,7 +350,8 @@ simulate_tournoi <- function(matches, n_sim = N_SIM_CHAMPION) {
         else       { wins[a] <- wins[a] + 1; diff[a] <- diff[a] + m; diff[h] <- diff[h] - m }
       }
     }
-    ord <- order(-wins, -diff, runif(k))          # départage résiduel aléatoire
+    ord <- if (nr == 0) fixed_ord                 # poule finie : ordre officiel
+           else order(-wins, -diff, runif(k))     # sinon départage résiduel
     top4[ord[1:4]] <- top4[ord[1:4]] + 1
     f1  <- bo3_winner(ord[1], ord[4])             # demi-finale 1v4
     f2  <- bo3_winner(ord[2], ord[3])             # demi-finale 2v3
@@ -324,9 +387,9 @@ ajuste_pronostic <- function(p_titre, p_qualif, elimine, plancher = PLANCHER_TIT
 }
 
 # Pronostic par équipe (sans marché) : proba de demi et de titre, planchées.
-pronostic_equipes <- function(matches, sim = NULL) {
+pronostic_equipes <- function(matches, sim = NULL, overrides = NULL) {
   if (is.null(sim)) sim <- simulate_tournoi(matches)
-  el  <- equipe_eliminee(matches)
+  el  <- equipe_eliminee(matches, overrides)
   aj  <- ajuste_pronostic(sim$p_champ, sim$p_top4, el)
   tid <- names(sim$p_champ)
   list(team_id = tid, qualif = aj$qualif[tid], titre = aj$titre[tid],
@@ -340,7 +403,7 @@ cotes_champion <- function(con, matches = NULL, sim = NULL) {
   if (is.null(matches)) matches <- get_matches(con)
   if (is.null(sim))     sim <- simulate_tournoi(matches)
   teams_id <- names(sim$p_champ)
-  el       <- equipe_eliminee(matches)
+  el       <- equipe_eliminee(matches, get_elim_overrides(con))
 
   flux <- dbx_get(con, "
     SELECT team_id, SUM(mise) AS total FROM champion_bets GROUP BY team_id")

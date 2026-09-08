@@ -829,6 +829,96 @@
       "fr": "Score de la finale (au meilleur des 3)",
       "en": "Final score (best of 3)",
       "nl": "Eindscore (best of 3)"
+    },
+    {
+      "fr": "Qualifications & pronostics",
+      "en": "Qualifications & forecast",
+      "nl": "Kwalificaties & voorspelling"
+    },
+    {
+      "fr": "Les 4 meilleures équipes (victoires, puis goal average, puis confrontation directe) sont qualifiées. En fin de poule le calcul est automatique ; forcez le statut d'une équipe pour régler un cas limite.",
+      "en": "The top 4 teams (wins, then goal average, then head-to-head) qualify. At the end of the group stage this is computed automatically; force a team's status to settle an edge case.",
+      "nl": "De beste 4 teams (overwinningen, dan doelsaldo, dan onderling resultaat) kwalificeren zich. Op het einde van de poule gebeurt dit automatisch; forceer de status van een team voor een grensgeval."
+    },
+    {
+      "fr": "Recalculer les pronostics",
+      "en": "Recompute the forecast",
+      "nl": "Voorspelling herberekenen"
+    },
+    {
+      "fr": "Pronostics recalculés.",
+      "en": "Forecast recomputed.",
+      "nl": "Voorspelling herberekend."
+    },
+    {
+      "fr": "Statut de qualification",
+      "en": "Qualification status",
+      "nl": "Kwalificatiestatus"
+    },
+    {
+      "fr": "Automatique",
+      "en": "Automatic",
+      "nl": "Automatisch"
+    },
+    {
+      "fr": "Forcer en lice",
+      "en": "Force in contention",
+      "nl": "Forceer in de running"
+    },
+    {
+      "fr": "Forcer éliminée",
+      "en": "Force eliminated",
+      "nl": "Forceer uitgeschakeld"
+    },
+    {
+      "fr": "Appliquer le statut",
+      "en": "Apply status",
+      "nl": "Status toepassen"
+    },
+    {
+      "fr": "Statut mis à jour.",
+      "en": "Status updated.",
+      "nl": "Status bijgewerkt."
+    },
+    {
+      "fr": "En lice",
+      "en": "In contention",
+      "nl": "In de running"
+    },
+    {
+      "fr": "Auto",
+      "en": "Auto",
+      "nl": "Auto"
+    },
+    {
+      "fr": "Forcé éliminée",
+      "en": "Forced out",
+      "nl": "Geforceerd uit"
+    },
+    {
+      "fr": "Forcé en lice",
+      "en": "Forced in",
+      "nl": "Geforceerd in"
+    },
+    {
+      "fr": "Manuel",
+      "en": "Manual",
+      "nl": "Handmatig"
+    },
+    {
+      "fr": "Rang",
+      "en": "Rank",
+      "nl": "Rang"
+    },
+    {
+      "fr": "Final",
+      "en": "Final",
+      "nl": "Definitief"
+    },
+    {
+      "fr": "Éliminée",
+      "en": "Eliminated",
+      "nl": "Uitgeschakeld"
     }
   ]
 }
