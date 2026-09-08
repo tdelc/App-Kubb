@@ -211,6 +211,14 @@ db_init <- function(con, date_debut = next_saturday()) {
   if (dbx_get(con, "SELECT COUNT(*) AS n FROM champion_result")$n == 0) {
     dbx_exec(con, "INSERT INTO champion_result (id, settled) VALUES (1, 0)")
   }
+
+  # Override manuel de qualification (admin) : force une équipe en lice ou
+  # éliminée, en dérogation au calcul automatique. Absence de ligne = auto.
+  dbx_exec(con, "
+    CREATE TABLE IF NOT EXISTS champion_override (
+      team_id INTEGER PRIMARY KEY REFERENCES teams(team_id),
+      elimine INTEGER NOT NULL      -- 0 = forcé en lice, 1 = forcé éliminé
+    )")
   
   # --- Seed des équipes -------------------------------------------
   if (dbx_get(con, "SELECT COUNT(*) AS n FROM teams")$n == 0) {
@@ -376,6 +384,32 @@ get_champion_result <- function(con) {
 
 champion_ouvert <- function(con) {
   get_champion_result(con)$settled == 0
+}
+
+# Overrides manuels de qualification : vecteur nommé team_id -> 0/1 (vide si
+# aucun). 0 = forcé en lice, 1 = forcé éliminé.
+get_elim_overrides <- function(con) {
+  r <- dbx_get(con, "SELECT team_id, elimine FROM champion_override")
+  if (nrow(r) == 0) return(setNames(integer(0), character(0)))
+  setNames(as.integer(r$elimine), as.character(r$team_id))
+}
+
+# Fixe (ou retire) l'override d'une équipe. statut : "auto" (retire),
+# "lice" (forcé en lice) ou "elim" (forcé éliminé). Bascule version_matchs
+# pour invalider le cache des pronostics et des cotes.
+set_elim_override <- function(con, team_id, statut) {
+  team_id <- as.integer(team_id)
+  if (identical(statut, "auto")) {
+    dbx_exec(con, "DELETE FROM champion_override WHERE team_id = ?",
+             params = list(team_id))
+  } else {
+    val <- if (identical(statut, "elim")) 1L else 0L
+    dbx_exec(con, "
+      INSERT INTO champion_override (team_id, elimine) VALUES (?, ?)
+      ON CONFLICT (team_id) DO UPDATE SET elimine = EXCLUDED.elimine",
+             params = list(team_id, val))
+  }
+  db_touch_matchs(con)
 }
 
 get_transactions <- function(con) {

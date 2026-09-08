@@ -92,7 +92,7 @@ mod_suivi_server <- function(id, con, db_ver, db_ver_matchs, i18n_s, lang) {
     # mise en cache et recalculée seulement quand un résultat change.
     prono <- reactive({
       db_ver_matchs()
-      pr <- pronostic_equipes(get_matches(con))
+      pr <- pronostic_equipes(get_matches(con), overrides = get_elim_overrides(con))
       teams <- get_teams(con)
       tid <- pr$team_id
       dplyr::tibble(

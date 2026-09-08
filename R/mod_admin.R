@@ -96,6 +96,14 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                 card_body(
                   uiOutput(ns("champ_admin"))
                 )
+              ),
+
+              card(
+                card_header(tagList(bsicons::bs_icon("diagram-3"),
+                                    tr("Qualifications & pronostics"))),
+                card_body(
+                  uiOutput(ns("champ_qualif"))
+                )
               )
             )
           ),
@@ -334,7 +342,79 @@ mod_admin_server <- function(id, con, user, db_ver, touch, i18n_s, lang) {
                 res$n_gagnants, tr("gagnants"), res$total_paye, tr("redistribués")),
         type = "message", duration = 8)
     })
-    
+
+    # ---------------- Qualifications & pronostics ----------------
+    output$champ_qualif <- renderUI({
+      lang()
+      db_ver()
+      req(est_admin())
+      teams <- get_teams(con)
+      tagList(
+        p(class = "text-muted small",
+          tr("Les 4 meilleures équipes (victoires, puis goal average, puis confrontation directe) sont qualifiées. En fin de poule le calcul est automatique ; forcez le statut d'une équipe pour régler un cas limite.")),
+        actionButton(ns("btn_recalc"), tr("Recalculer les pronostics"),
+                     class = "btn-secondary mb-3"),
+        selectInput(ns("elim_team"), tr("Équipe"),
+                    choices = setNames(teams$team_id, teams$nom)),
+        radioButtons(ns("elim_statut"), tr("Statut de qualification"),
+                     choiceNames = c(tr("Automatique"), tr("Forcer en lice"),
+                                     tr("Forcer éliminée")),
+                     choiceValues = c("auto", "lice", "elim"), selected = "auto"),
+        actionButton(ns("btn_elim"), tr("Appliquer le statut"), class = "btn-warning"),
+        div(class = "mt-3", tableOutput(ns("tbl_qualif")))
+      )
+    })
+
+    # Pré-remplit le statut affiché selon l'override existant de l'équipe choisie
+    observeEvent(list(input$elim_team, db_ver()), {
+      req(est_admin(), input$elim_team)
+      ov <- get_elim_overrides(con)
+      tid <- as.character(as.integer(input$elim_team))
+      statut <- if (!(tid %in% names(ov))) "auto"
+                else if (ov[[tid]] == 1) "elim" else "lice"
+      updateRadioButtons(session, "elim_statut", selected = statut)
+    }, ignoreInit = TRUE)
+
+    observeEvent(input$btn_recalc, {
+      req(est_admin())
+      db_touch_matchs(con)
+      showNotification(tr("Pronostics recalculés."), type = "message")
+    })
+
+    observeEvent(input$btn_elim, {
+      req(est_admin(), input$elim_team, input$elim_statut)
+      set_elim_override(con, as.integer(input$elim_team), input$elim_statut)
+      showNotification(tr("Statut mis à jour."), type = "message")
+    })
+
+    output$tbl_qualif <- renderTable({
+      lang()
+      db_ver()
+      req(est_admin())
+      m     <- get_matches(con)
+      teams <- get_teams(con)
+      ov    <- get_elim_overrides(con)
+      auto  <- equipe_eliminee(m, NULL)
+      final <- equipe_eliminee(m, ov)
+      ids   <- classement_officiel(m)
+      lbl   <- function(b) ifelse(b, tr("Éliminée"), tr("En lice"))
+      manuel <- vapply(ids, function(t) {
+        if (!(t %in% names(ov))) tr("Auto")
+        else if (ov[[t]] == 1)   tr("Forcé éliminée")
+        else                     tr("Forcé en lice")
+      }, character(1))
+      df <- data.frame(
+        rang   = seq_along(ids),
+        equipe = teams$nom[match(as.integer(ids), teams$team_id)],
+        auto   = lbl(auto[ids]),
+        manuel = manuel,
+        final  = lbl(final[ids]),
+        stringsAsFactors = FALSE
+      )
+      names(df) <- c(tr("Rang"), tr("Équipe"), tr("Auto"), tr("Manuel"), tr("Final"))
+      df
+    }, striped = TRUE, spacing = "xs")
+
     # ---------------- Annulation de paris ----------------
     # Paris en cours uniquement (settled = 0) : ce sont les seuls
     # annulables (les doublons de double-clic en font partie).
